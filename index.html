@@ -10,7 +10,7 @@
 <style>
 :root {
   --bg: #f3f5f9;
-  --card: #ffffff;
+  --card: #fff;
   --text: #172033;
   --muted: #778197;
   --orange: #f97316;
@@ -53,7 +53,7 @@ main { padding: 20px 0 40px; }
 }
 .stats {
   display: grid;
-  grid-template-columns: repeat(3, 1fr);
+  grid-template-columns: repeat(3, minmax(0, 1fr));
   gap: 10px;
   margin-bottom: 16px;
 }
@@ -65,7 +65,12 @@ main { padding: 20px 0 40px; }
   min-width: 0;
 }
 .stat-label { font-size: 11px; color: var(--muted); }
-.stat-number { font-size: 23px; font-weight: 800; margin-top: 7px; }
+.stat-number {
+  font-size: 23px;
+  font-weight: 800;
+  margin-top: 7px;
+  overflow-wrap: anywhere;
+}
 .green-text { color: var(--green); }
 .red-text { color: var(--red); }
 .month-bar {
@@ -75,20 +80,22 @@ main { padding: 20px 0 40px; }
   gap: 10px;
   margin-bottom: 18px;
 }
-.month-bar h2 { margin: 0; font-size: 20px; text-transform: capitalize; }
+.month-bar h2 {
+  margin: 0;
+  font-size: 20px;
+  text-transform: capitalize;
+  text-align: center;
+}
+button, input, select { font: inherit; }
 button {
   border: 0;
   cursor: pointer;
-  font: inherit;
   font-weight: 700;
   border-radius: 10px;
   padding: 12px 14px;
 }
-.arrow {
-  background: #f1f3f7;
-  padding: 9px 14px;
-  font-size: 19px;
-}
+button:disabled { cursor: default; }
+.arrow { background: #f1f3f7; padding: 9px 14px; font-size: 19px; }
 .weekdays, .calendar {
   display: grid;
   grid-template-columns: repeat(7, minmax(0, 1fr));
@@ -104,7 +111,7 @@ button {
 }
 .day {
   min-width: 0;
-  aspect-ratio: 1 / 1;
+  aspect-ratio: 1;
   border: 2px solid transparent;
   border-radius: 11px;
   display: flex;
@@ -121,7 +128,7 @@ button {
 .day.saved { background: #dcfce7; color: #166534; }
 .day.missing { background: #fee2e2; color: #b91c1c; }
 .day.future { background: #f0f2f6; color: #647084; }
-.day.weekend { background: #e5e7eb; color: #9ca3af; cursor: default; }
+.day.weekend { background: #e5e7eb; color: #9ca3af; }
 .day.selected { border-color: var(--orange); }
 .day.today:not(.weekend) { box-shadow: inset 0 0 0 1px #f9731680; }
 .legend {
@@ -138,13 +145,13 @@ h3 { margin: 0 0 5px; font-size: 18px; }
 .subtitle { color: var(--muted); font-size: 13px; margin: 0 0 18px; }
 label { display: block; font-size: 13px; font-weight: 700; margin-bottom: 7px; }
 .fields { display: grid; grid-template-columns: 1fr 1fr; gap: 12px; }
-input {
+.field { min-width: 0; }
+input, select {
   width: 100%;
   min-width: 0;
-  border: 1px solid #d9dfE8;
+  border: 1px solid #d9dfe8;
   border-radius: 11px;
   padding: 13px 10px;
-  font: inherit;
   font-size: 17px;
   color: var(--text);
   background: white;
@@ -164,8 +171,6 @@ input {
 .primary { background: var(--orange); color: white; width: 100%; margin-top: 14px; }
 .secondary { background: #f1f3f7; color: var(--text); }
 .delete { color: var(--red); background: #fff1f2; }
-.actions { display: grid; grid-template-columns: 1fr 1fr; gap: 10px; }
-.actions button { width: 100%; }
 .report-row {
   display: flex;
   justify-content: space-between;
@@ -178,15 +183,15 @@ input {
 .note { color: var(--muted); font-size: 12px; line-height: 1.6; }
 .hidden { display: none !important; }
 footer { text-align: center; color: var(--muted); font-size: 11px; padding: 10px 20px 25px; }
-
 @media (max-width: 420px) {
   .card { padding: 13px; }
   .stats { gap: 6px; }
   .stat { padding: 12px 8px; }
-  .stat-number { font-size: 20px; }
+  .stat-number { font-size: 19px; }
   .weekdays, .calendar { gap: 4px; }
   .day { border-radius: 8px; font-size: 12px; }
   .day small { font-size: 8px; }
+  .month-bar h2 { font-size: 18px; }
 }
 @media print {
   body { background: white; }
@@ -198,7 +203,11 @@ footer { text-align: center; color: var(--muted); font-size: 11px; padding: 10px
     font-family: Arial, sans-serif;
   }
   #printReport h1 { font-size: 23px; }
-  #printReport table { width: 100%; border-collapse: collapse; margin-top: 20px; }
+  #printReport table {
+    width: 100%;
+    border-collapse: collapse;
+    margin-top: 20px;
+  }
   #printReport th, #printReport td {
     border: 1px solid #ccc;
     padding: 8px;
@@ -209,8 +218,8 @@ footer { text-align: center; color: var(--muted); font-size: 11px; padding: 10px
 }
 </style>
 </head>
-
 <body>
+
 <header>
   <div class="header-inner">
     <div class="brand">REGISTRO PERSONALE</div>
@@ -241,11 +250,13 @@ footer { text-align: center; color: var(--muted); font-size: 11px; padding: 10px
       <h2 id="monthTitle"></h2>
       <button class="arrow" id="nextMonth" aria-label="Mese successivo">›</button>
     </div>
+
     <div class="weekdays">
       <div>LUN</div><div>MAR</div><div>MER</div><div>GIO</div>
       <div>VEN</div><div>SAB</div><div>DOM</div>
     </div>
     <div class="calendar" id="calendar"></div>
+
     <div class="legend">
       <span><i class="dot" style="background:#22c55e"></i>Registrato</span>
       <span><i class="dot" style="background:#ef4444"></i>Mancante</span>
@@ -254,34 +265,55 @@ footer { text-align: center; color: var(--muted); font-size: 11px; padding: 10px
     </div>
   </section>
 
-  <section class="card" id="editor">
+  <section class="card">
     <h3 id="selectedTitle">Seleziona una data</h3>
-    <p class="subtitle">Inserisci l'orario di inizio e quello di fine.</p>
+    <p class="subtitle">Inserisci inizio, pausa pranzo e fine.</p>
+
     <div class="fields">
-      <div>
+      <div class="field">
         <label for="start">Ora di inizio</label>
         <input type="time" id="start">
       </div>
-      <div>
+
+      <div class="field">
         <label for="end">Ora di fine</label>
         <input type="time" id="end">
       </div>
+
+      <div class="field" style="grid-column:1 / -1">
+        <label for="lunch">Pausa pranzo</label>
+        <select id="lunch">
+          <option value="0">0 ore</option>
+          <option value="1" selected>1 ora</option>
+          <option value="2">2 ore</option>
+        </select>
+      </div>
     </div>
+
     <div class="total">
       <span>Ore della giornata</span>
       <strong id="dayHours">0h 00m</strong>
     </div>
+
     <button class="primary" id="saveDay">Salva orari</button>
-    <button class="secondary hidden" id="deleteDay" style="width:100%;margin-top:9px">Cancella orari</button>
+    <button class="secondary hidden" id="deleteDay" style="width:100%;margin-top:9px">
+      Cancella orari
+    </button>
     <p class="note" id="editorMessage" style="margin-top:12px"></p>
   </section>
 
   <section class="card">
     <h3>Riepilogo mensile</h3>
-    <p class="subtitle">PDF con date, orari, ore lavorate e giornate mancanti.</p>
-    <div class="report-row"><span>Mese selezionato</span><strong id="reportMonth"></strong></div>
-    <div class="report-row"><span>Totale ore registrate</span><strong id="reportHours"></strong></div>
-    <div class="report-row"><span>Giornate mancanti</span><strong id="reportMissing"></strong></div>
+    <p class="subtitle">PDF con date, orari, pausa pranzo e ore lavorate.</p>
+    <div class="report-row">
+      <span>Mese selezionato</span><strong id="reportMonth"></strong>
+    </div>
+    <div class="report-row">
+      <span>Totale ore registrate</span><strong id="reportHours"></strong>
+    </div>
+    <div class="report-row">
+      <span>Giornate mancanti</span><strong id="reportMissing"></strong>
+    </div>
     <button class="primary" id="pdfButton">Genera PDF mensile</button>
     <p class="note">Puoi generare il PDF anche prima della fine del mese. Le giornate future non vengono conteggiate come mancanti.</p>
   </section>
@@ -299,10 +331,12 @@ footer { text-align: center; color: var(--muted); font-size: 11px; padding: 10px
   let selectedDate = dateKey(today);
   let records = {};
 
-  // I dati vengono salvati localmente sul dispositivo.
+  // Mantiene le registrazioni già presenti nella versione precedente.
   try {
     records = JSON.parse(localStorage.getItem("oreLavoroRecords") || "{}");
-    if (!records || typeof records !== "object" || Array.isArray(records)) records = {};
+    if (!records || typeof records !== "object" || Array.isArray(records)) {
+      records = {};
+    }
   } catch {
     records = {};
   }
@@ -335,6 +369,7 @@ footer { text-align: center; color: var(--muted); font-size: 11px; padding: 10px
   function monthKeys(year, month) {
     const keys = [];
     const count = new Date(year, month + 1, 0).getDate();
+
     for (let day = 1; day <= count; day++) {
       const date = new Date(year, month, day);
       if (!isWeekend(date)) keys.push(dateKey(date));
@@ -344,12 +379,18 @@ footer { text-align: center; color: var(--muted); font-size: 11px; padding: 10px
 
   function minutesFor(record) {
     if (!record || !record.start || !record.end) return 0;
+
     const [sh, sm] = record.start.split(":").map(Number);
     const [eh, em] = record.end.split(":").map(Number);
+
     let diff = eh * 60 + em - (sh * 60 + sm);
-    // Supporta anche un turno che termina dopo mezzanotte.
+
+    // Supporta turni che terminano dopo mezzanotte.
     if (diff < 0) diff += 24 * 60;
-    return diff;
+
+    // Per le vecchie registrazioni, la pausa predefinita è un'ora.
+    const lunch = Number(record.lunch ?? 1);
+    return Math.max(0, diff - lunch * 60);
   }
 
   function formatMinutes(minutes) {
@@ -358,14 +399,18 @@ footer { text-align: center; color: var(--muted); font-size: 11px; padding: 10px
   }
 
   function complete(key) {
-    return !!(records[key] && records[key].start && records[key].end);
+    return !!(
+      records[key] &&
+      records[key].start &&
+      records[key].end
+    );
   }
 
   function saveStorage() {
     try {
       localStorage.setItem("oreLavoroRecords", JSON.stringify(records));
       return true;
-    } catch (error) {
+    } catch {
       alert("Impossibile salvare i dati sul dispositivo. Controlla lo spazio disponibile o le impostazioni del browser.");
       return false;
     }
@@ -392,15 +437,13 @@ footer { text-align: center; color: var(--muted); font-size: 11px; padding: 10px
   function renderCalendar() {
     const calendar = $("calendar");
     calendar.replaceChildren();
-
     $("monthTitle").textContent = monthLabel(viewYear, viewMonth);
-    const firstDay = new Date(viewYear, viewMonth, 1);
-    const offset = (firstDay.getDay() + 6) % 7;
+
+    const offset = (new Date(viewYear, viewMonth, 1).getDay() + 6) % 7;
     const count = new Date(viewYear, viewMonth + 1, 0).getDate();
 
     for (let i = 0; i < offset; i++) {
-      const empty = document.createElement("div");
-      calendar.appendChild(empty);
+      calendar.appendChild(document.createElement("div"));
     }
 
     for (let day = 1; day <= count; day++) {
@@ -408,6 +451,7 @@ footer { text-align: center; color: var(--muted); font-size: 11px; padding: 10px
       const key = dateKey(date);
       const weekend = isWeekend(date);
       const button = document.createElement("button");
+
       button.className = "day";
       button.type = "button";
       button.textContent = day;
@@ -439,21 +483,21 @@ footer { text-align: center; color: var(--muted); font-size: 11px; padding: 10px
         renderCalendar();
         renderEditor();
       });
+
       calendar.appendChild(button);
     }
+
     renderStats();
   }
 
   function renderStats() {
     const keys = monthKeys(viewYear, viewMonth);
-    const done = keys.filter(complete).length;
-    const missing = missingKeys().length;
     $("monthHours").textContent = formatMinutes(monthTotal());
-    $("doneDays").textContent = done;
-    $("missingDays").textContent = missing;
+    $("doneDays").textContent = keys.filter(complete).length;
+    $("missingDays").textContent = missingKeys().length;
     $("reportMonth").textContent = monthLabel(viewYear, viewMonth);
     $("reportHours").textContent = formatMinutes(monthTotal());
-    $("reportMissing").textContent = missing;
+    $("reportMissing").textContent = missingKeys().length;
   }
 
   function renderEditor() {
@@ -462,59 +506,83 @@ footer { text-align: center; color: var(--muted); font-size: 11px; padding: 10px
       date.toLocaleDateString("it-IT", {
         weekday: "long", day: "numeric", month: "long"
       });
+
     const record = records[selectedDate] || {};
     $("start").value = record.start || "";
     $("end").value = record.end || "";
+    $("lunch").value = String(record.lunch ?? 1);
+
     $("deleteDay").classList.toggle("hidden", !complete(selectedDate));
     $("saveDay").disabled = isWeekend(date);
     $("saveDay").style.opacity = isWeekend(date) ? ".5" : "1";
+
     $("editorMessage").textContent = isWeekend(date)
       ? "Sabato e domenica sono esclusi dal registro."
       : isFuture(selectedDate)
         ? "Puoi registrare gli orari anche in anticipo."
         : "I dati salvati aggiornano il calendario e il totale mensile.";
+
     updateDayTotal();
   }
 
   function updateDayTotal() {
     const start = $("start").value;
     const end = $("end").value;
+    const lunch = Number($("lunch").value);
+
     $("dayHours").textContent = start && end
-      ? formatMinutes(minutesFor({start, end}))
+      ? formatMinutes(minutesFor({ start, end, lunch }))
       : "0h 00m";
   }
 
   $("start").addEventListener("input", updateDayTotal);
   $("end").addEventListener("input", updateDayTotal);
+  $("lunch").addEventListener("change", updateDayTotal);
 
   $("saveDay").addEventListener("click", () => {
     const start = $("start").value;
     const end = $("end").value;
+    const lunch = Number($("lunch").value);
+
     if (!start || !end) {
       alert("Inserisci sia l'ora di inizio sia l'ora di fine.");
       return;
     }
+
     if (start === end) {
-      alert("L'ora di inizio e quella di fine sono uguali. Se hai lavorato 24 ore, contatta l'ufficio per registrare correttamente il turno.");
+      alert("L'ora di inizio e quella di fine sono uguali. Controlla gli orari.");
       return;
     }
-    records[selectedDate] = { start, end };
+
+    if (![0, 1, 2].includes(lunch)) {
+      alert("Seleziona una pausa pranzo valida.");
+      return;
+    }
+
+    records[selectedDate] = { start, end, lunch };
+
     if (!saveStorage()) return;
+
     renderCalendar();
     renderEditor();
   });
 
   $("deleteDay").addEventListener("click", () => {
     if (!confirm("Vuoi cancellare gli orari di questa giornata?")) return;
+
     delete records[selectedDate];
     if (!saveStorage()) return;
+
     renderCalendar();
     renderEditor();
   });
 
   $("prevMonth").addEventListener("click", () => {
     viewMonth--;
-    if (viewMonth < 0) { viewMonth = 11; viewYear--; }
+    if (viewMonth < 0) {
+      viewMonth = 11;
+      viewYear--;
+    }
     selectedDate = dateKey(new Date(viewYear, viewMonth, 1));
     renderCalendar();
     renderEditor();
@@ -522,14 +590,17 @@ footer { text-align: center; color: var(--muted); font-size: 11px; padding: 10px
 
   $("nextMonth").addEventListener("click", () => {
     viewMonth++;
-    if (viewMonth > 11) { viewMonth = 0; viewYear++; }
+    if (viewMonth > 11) {
+      viewMonth = 0;
+      viewYear++;
+    }
     selectedDate = dateKey(new Date(viewYear, viewMonth, 1));
     renderCalendar();
     renderEditor();
   });
 
-  function escapeHTML(text) {
-    return String(text).replace(/[&<>"']/g, c => ({
+  function escapeHTML(value) {
+    return String(value).replace(/[&<>"']/g, c => ({
       "&": "&amp;", "<": "&lt;", ">": "&gt;",
       '"': "&quot;", "'": "&#39;"
     })[c]);
@@ -539,16 +610,22 @@ footer { text-align: center; color: var(--muted); font-size: 11px; padding: 10px
     const keys = monthKeys(viewYear, viewMonth);
     const missing = missingKeys();
     let rows = "";
+
     keys.forEach(key => {
       const record = records[key];
-      rows += "<tr><td>" + formatDate(key) + "</td><td>" +
-        (record ? escapeHTML(record.start || "—") : "—") +
-        "</td><td>" +
-        (record ? escapeHTML(record.end || "—") : "—") +
-        "</td><td>" +
-        (complete(key) ? formatMinutes(minutesFor(record)) : "—") +
-        "</td><td>" + (complete(key) ? "Registrato" :
-          isFuture(key) ? "Futuro" : "Mancante") + "</td></tr>";
+      const status = complete(key)
+        ? "Registrato"
+        : isFuture(key) ? "Futuro" : "Mancante";
+
+      rows += "<tr><td>" + escapeHTML(formatDate(key)) +
+        "</td><td>" + (record ? escapeHTML(record.start || "—") : "—") +
+        "</td><td>" + (record ? escapeHTML(record.end || "—") : "—") +
+        "</td><td>" + (complete(key)
+          ? Number(record.lunch ?? 1) + " h"
+          : "—") +
+        "</td><td>" + (complete(key)
+          ? formatMinutes(minutesFor(record)) : "—") +
+        "</td><td>" + status + "</td></tr>";
     });
 
     $("printReport").innerHTML = `
@@ -558,7 +635,12 @@ footer { text-align: center; color: var(--muted); font-size: 11px; padding: 10px
       <p><strong>Giornate registrate:</strong> ${keys.filter(complete).length}</p>
       <p><strong>Giornate mancanti:</strong> ${missing.length}</p>
       <table>
-        <thead><tr><th>Data</th><th>Inizio</th><th>Fine</th><th>Ore</th><th>Stato</th></tr></thead>
+        <thead>
+          <tr>
+            <th>Data</th><th>Inizio</th><th>Fine</th>
+            <th>Pausa pranzo</th><th>Ore lavorate</th><th>Stato</th>
+          </tr>
+        </thead>
         <tbody>${rows}</tbody>
       </table>
       <p style="margin-top:30px">Firma lavoratore: __________________________</p>
@@ -567,7 +649,6 @@ footer { text-align: center; color: var(--muted); font-size: 11px; padding: 10px
 
   $("pdfButton").addEventListener("click", () => {
     buildReport();
-    // Apri la stampa: scegli "Salva come PDF" o "Stampa" dal dispositivo.
     window.print();
   });
 
@@ -577,4 +658,3 @@ footer { text-align: center; color: var(--muted); font-size: 11px; padding: 10px
 </script>
 </body>
 </html>
-
