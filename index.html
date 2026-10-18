@@ -5,512 +5,145 @@
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
 <meta name="theme-color" content="#111827">
-<title>Calendario Ore Lavoro</title>
+<title>Ore Lavoro - Calendario</title>
 
 <style>
 :root {
-  --bg: #f3f5f9;
-  --panel: #ffffff;
-  --text: #172033;
-  --muted: #718096;
-  --orange: #f47721;
-  --green: #16a34a;
-  --red: #dc2626;
-  --border: #e2e8f0;
-}
-
-* { box-sizing: border-box; }
-
-body {
-  margin: 0;
-  background: var(--bg);
-  color: var(--text);
-  font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", sans-serif;
-}
-
-header {
-  background: #111827;
-  color: white;
-  padding: 22px 16px;
-}
-
-.header-inner {
-  max-width: 1100px;
-  margin: auto;
-  display: flex;
-  align-items: center;
-  justify-content: space-between;
-  gap: 12px;
-}
-
-.brand {
-  font-size: 22px;
-  font-weight: 900;
-  letter-spacing: .5px;
-}
-
-.brand span { color: var(--orange); }
-
-.header-subtitle {
-  color: #cbd5e1;
-  font-size: 12px;
-  margin-top: 5px;
-}
-
-.container {
-  max-width: 1100px;
-  margin: 22px auto;
-  padding: 0 14px 40px;
-}
-
-.panel {
-  background: var(--panel);
-  border: 1px solid var(--border);
-  border-radius: 18px;
-  padding: 20px;
-  margin-bottom: 18px;
-  box-shadow: 0 5px 20px #17203308;
-}
-
-.section-title {
-  font-size: 18px;
-  font-weight: 850;
-  margin: 0 0 16px;
-}
-
-.stats {
-  display: grid;
-  grid-template-columns: repeat(3, minmax(0, 1fr));
-  gap: 12px;
-  margin-bottom: 18px;
-}
-
-.stat {
-  background: white;
-  border: 1px solid var(--border);
-  border-radius: 15px;
-  padding: 16px;
-  min-width: 0;
-}
-
-.stat-label {
-  font-size: 12px;
-  color: var(--muted);
-  margin-bottom: 8px;
-}
-
-.stat-value {
-  font-size: clamp(19px, 4vw, 27px);
-  font-weight: 900;
-  overflow-wrap: anywhere;
-}
-
-.stat-value.orange { color: var(--orange); }
-.stat-value.green { color: var(--green); }
-
-.calendar-head {
-  display: flex;
-  align-items: center;
-  justify-content: space-between;
-  gap: 10px;
-  margin-bottom: 18px;
-}
-
-.month-label {
-  text-transform: capitalize;
-  font-size: 20px;
-  font-weight: 900;
-  text-align: center;
-}
-
-button, input, select {
-  font: inherit;
-}
-
-button {
-  cursor: pointer;
-}
-
-.nav-btn {
-  width: 42px;
-  height: 42px;
-  border: 1px solid var(--border);
-  border-radius: 12px;
-  background: white;
-  font-size: 20px;
-  font-weight: 800;
-}
-
-.nav-btn:active { transform: scale(.96); }
-
-.weekdays, .calendar {
-  display: grid;
-  grid-template-columns: repeat(7, minmax(0, 1fr));
-  gap: 7px;
-}
-
-.weekday {
-  text-align: center;
-  padding: 8px 0;
-  color: var(--muted);
-  font-size: 11px;
-  font-weight: 800;
-}
-
-.day {
-  position: relative;
-  min-height: 76px;
-  border: 1px solid var(--border);
-  border-radius: 12px;
-  background: #fff;
-  padding: 9px 5px;
-  text-align: center;
-  color: var(--text);
-  overflow: hidden;
-}
-
-.day .number {
-  display: block;
-  font-size: 15px;
-  font-weight: 850;
-}
-
-.day .day-hours {
-  display: block;
-  font-size: 10px;
-  margin-top: 7px;
-  font-weight: 800;
-  overflow-wrap: anywhere;
-}
-
-.day .day-holiday {
-  display: block;
-  font-size: 9px;
-  margin-top: 4px;
-  font-weight: 850;
-}
-
-.day.completed {
-  background: #dcfce7;
-  border-color: #86efac;
-}
-
-.day.missing {
-  background: #fee2e2;
-  border-color: #fca5a5;
-}
-
-.day.weekend {
-  background: #f1f5f9;
-  color: #94a3b8;
-}
-
-.day.future {
-  background: #fff;
-  color: #64748b;
-}
-
-.day.has-holiday {
-  box-shadow: inset 0 -4px 0 #8b5cf6;
-}
-
-.day.selected {
-  outline: 3px solid var(--orange);
-  outline-offset: -3px;
-}
-
-.day.today .number::after {
-  content: " •";
-  color: var(--orange);
-}
-
-.legend {
-  display: flex;
-  flex-wrap: wrap;
-  gap: 12px;
-  margin-top: 15px;
-  font-size: 11px;
-  color: var(--muted);
-}
-
-.legend span {
-  display: inline-flex;
-  align-items: center;
-  gap: 5px;
-}
-
-.dot {
-  width: 11px;
-  height: 11px;
-  border-radius: 3px;
-  display: inline-block;
-}
-
-.dot.green { background: #86efac; }
-.dot.red { background: #fca5a5; }
-.dot.grey { background: #cbd5e1; }
-.dot.purple { background: #8b5cf6; }
-
-.selected-date {
-  font-size: 21px;
-  font-weight: 900;
-  margin-bottom: 6px;
-  text-transform: capitalize;
-}
-
-.help {
-  color: var(--muted);
-  font-size: 13px;
-  line-height: 1.5;
-  margin-bottom: 18px;
-}
-
-.form-grid {
-  display: grid;
-  grid-template-columns: repeat(2, minmax(0, 1fr));
-  gap: 15px;
-}
-
-.field {
-  display: flex;
-  flex-direction: column;
-  gap: 7px;
-  min-width: 0;
-}
-
-.field label {
-  font-size: 13px;
-  font-weight: 800;
-}
-
-.field input, .field select {
-  width: 100%;
-  min-height: 47px;
-  padding: 11px 12px;
-  border: 1px solid #cbd5e1;
-  border-radius: 11px;
-  background: #fff;
-  color: var(--text);
-}
-
-.field input:focus, .field select:focus {
-  outline: 2px solid #fdba74;
-  border-color: var(--orange);
-}
-
-.field small {
-  color: var(--muted);
-  font-size: 11px;
-  line-height: 1.4;
-}
-
-.holiday-box {
-  margin-top: 20px;
-  padding: 16px;
-  border: 1px solid #ddd6fe;
-  border-radius: 14px;
-  background: #f5f3ff;
-}
-
-.holiday-title {
-  color: #6d28d9;
-  font-weight: 900;
-  margin-bottom: 7px;
-}
-
-.holiday-box .field label { color: #5b21b6; }
-
-.holiday-note {
-  color: #6d28d9;
-  font-size: 12px;
-  line-height: 1.5;
-  margin-top: 9px;
-}
-
-.total-box {
-  display: flex;
-  justify-content: space-between;
-  align-items: center;
-  gap: 10px;
-  padding: 15px;
-  margin-top: 18px;
-  background: #f8fafc;
-  border: 1px solid var(--border);
-  border-radius: 13px;
-}
-
-.total-box strong {
-  font-size: 23px;
-  color: var(--green);
-}
-
-.actions {
-  display: flex;
-  flex-wrap: wrap;
-  gap: 10px;
-  margin-top: 18px;
-}
-
-.btn {
-  border: 0;
-  border-radius: 11px;
-  padding: 13px 16px;
-  font-weight: 850;
-  min-height: 46px;
-}
-
-.btn-primary {
-  background: var(--orange);
-  color: white;
-  flex: 1 1 170px;
-}
-
-.btn-dark {
-  background: #111827;
-  color: white;
-}
-
-.btn-purple {
-  background: #7c3aed;
-  color: white;
-}
-
-.btn-light {
-  background: #f1f5f9;
-  color: #334155;
-  border: 1px solid var(--border);
-}
-
-.btn-danger {
-  background: #fee2e2;
-  color: #b91c1c;
-}
-
-.btn:active { transform: scale(.99); }
-
-.export-grid {
-  display: grid;
-  grid-template-columns: repeat(2, minmax(0, 1fr));
-  gap: 12px;
-}
-
-.export-card {
-  border: 1px solid var(--border);
-  border-radius: 14px;
-  padding: 16px;
-}
-
-.export-card h3 {
-  margin: 0 0 7px;
-  font-size: 15px;
-}
-
-.export-card p {
-  margin: 0 0 14px;
-  color: var(--muted);
-  font-size: 12px;
-  line-height: 1.5;
-}
-
-.history-row {
-  display: flex;
-  justify-content: space-between;
-  align-items: center;
-  gap: 12px;
-  border-top: 1px solid var(--border);
-  padding: 12px 0;
-}
-
-.history-row:first-of-type { border-top: 0; }
-
-.history-main { min-width: 0; }
-
-.history-main strong {
-  display: block;
-  font-size: 13px;
-}
-
-.history-main small {
-  display: block;
-  margin-top: 5px;
-  color: var(--muted);
-  font-size: 11px;
-  line-height: 1.5;
-}
-
-.history-hours {
-  font-weight: 900;
-  white-space: nowrap;
-}
-
-.empty {
-  color: var(--muted);
-  font-size: 13px;
-  padding: 12px 0;
-}
-
-footer {
-  text-align: center;
-  color: var(--muted);
-  font-size: 11px;
-  padding: 5px 15px 25px;
-}
-
-@media (max-width: 600px) {
-  header { padding: 18px 14px; }
-  .brand { font-size: 19px; }
-  .container { margin-top: 14px; padding: 0 9px 25px; }
-  .panel { padding: 14px; border-radius: 15px; }
-  .stats { gap: 7px; }
-  .stat { padding: 11px 8px; border-radius: 12px; }
-  .stat-label { font-size: 10px; }
-  .stat-value { font-size: 19px; }
-  .day { min-height: 61px; padding: 7px 2px; border-radius: 8px; }
-  .day .number { font-size: 13px; }
-  .day .day-hours { font-size: 9px; margin-top: 5px; }
-  .day .day-holiday { font-size: 8px; }
-  .weekdays, .calendar { gap: 4px; }
-  .weekday { font-size: 10px; }
-  .form-grid, .export-grid { grid-template-columns: 1fr; }
-  .month-label { font-size: 17px; }
-  .selected-date { font-size: 19px; }
-  .total-box strong { font-size: 20px; }
-}
-
-@media print {
-  body { background: white; color: black; }
-  header, .no-print, footer { display: none !important; }
-  .container { max-width: none; margin: 0; padding: 0; }
-  .panel { border: 0; box-shadow: none; padding: 0; margin: 0; }
-  #calendarPanel, #editorPanel, #historyPanel, #exportPanel,
-  #statsPanel { display: none !important; }
-  #printReport { display: block !important; }
-  #printReport h1 { font-size: 20px; }
-  #printReport p { font-size: 11px; }
-  #printReport table {
-    width: 100%;
-    border-collapse: collapse;
-    font-size: 10px;
-    margin-top: 14px;
-  }
-  #printReport th, #printReport td {
-    border: 1px solid #999;
-    padding: 6px 5px;
-    text-align: left;
-  }
-  #printReport th { background: #eee !important; }
-  #printReport .print-total {
-    font-size: 15px;
-    font-weight: 900;
-    margin-top: 15px;
-  }
-  @page { size: A4; margin: 12mm; }
+  --bg:#f3f5f9;
+  --panel:#fff;
+  --text:#172033;
+  --muted:#718096;
+  --orange:#f47721;
+  --green:#16a34a;
+  --red:#dc2626;
+  --purple:#7c3aed;
+  --border:#e2e8f0;
+}
+*{box-sizing:border-box}
+body{
+  margin:0;background:var(--bg);color:var(--text);
+  font-family:-apple-system,BlinkMacSystemFont,"Segoe UI",sans-serif
+}
+header{background:#111827;color:#fff;padding:22px 16px}
+.header-inner{
+  max-width:1100px;margin:auto;display:flex;
+  align-items:center;justify-content:space-between;gap:12px
+}
+.brand{font-size:22px;font-weight:900;letter-spacing:.5px}
+.brand span{color:var(--orange)}
+.header-subtitle{color:#cbd5e1;font-size:12px;margin-top:5px}
+.container{max-width:1100px;margin:22px auto;padding:0 14px 40px}
+.panel,.stat{
+  background:var(--panel);border:1px solid var(--border);
+  border-radius:17px;box-shadow:0 5px 20px #17203308
+}
+.panel{padding:20px;margin-bottom:18px}
+.section-title{font-size:18px;font-weight:850;margin:0 0 16px}
+.stats{display:grid;grid-template-columns:repeat(3,minmax(0,1fr));gap:12px;margin-bottom:18px}
+.stat{padding:16px;min-width:0}
+.stat-label{font-size:12px;color:var(--muted);margin-bottom:8px}
+.stat-value{font-size:clamp(19px,4vw,27px);font-weight:900;overflow-wrap:anywhere}
+.green-text{color:var(--green)}
+.purple-text{color:var(--purple)}
+.orange-text{color:var(--orange)}
+.calendar-head{display:flex;align-items:center;justify-content:space-between;gap:10px;margin-bottom:18px}
+.month-label{text-transform:capitalize;font-size:20px;font-weight:900;text-align:center}
+button,input,select{font:inherit}
+button{cursor:pointer}
+.nav-btn{
+  width:42px;height:42px;border:1px solid var(--border);
+  border-radius:12px;background:#fff;font-size:20px;font-weight:800
+}
+.weekdays,.calendar{display:grid;grid-template-columns:repeat(7,minmax(0,1fr));gap:7px}
+.weekday{text-align:center;padding:8px 0;color:var(--muted);font-size:11px;font-weight:800}
+.day{
+  min-width:0;min-height:76px;border:1px solid var(--border);
+  border-radius:12px;background:#fff;padding:8px 3px;
+  text-align:center;color:var(--text);overflow:hidden
+}
+.day .number{display:block;font-size:15px;font-weight:850}
+.day .day-hours{display:block;font-size:10px;margin-top:6px;font-weight:800;overflow-wrap:anywhere}
+.day .day-holiday{display:block;font-size:9px;margin-top:4px;font-weight:850}
+.day.completed{background:#dcfce7;border-color:#86efac}
+.day.missing{background:#fee2e2;border-color:#fca5a5}
+.day.weekend{background:#f1f5f9;color:#94a3b8}
+.day.future{background:#fff;color:#64748b}
+.day.has-holiday{box-shadow:inset 0 -4px 0 #8b5cf6}
+.day.selected{outline:3px solid var(--orange);outline-offset:-3px}
+.day.today .number::after{content:" •";color:var(--orange)}
+.legend{display:flex;flex-wrap:wrap;gap:12px;margin-top:15px;font-size:11px;color:var(--muted)}
+.legend span{display:inline-flex;align-items:center;gap:5px}
+.dot{width:11px;height:11px;border-radius:3px;display:inline-block}
+.dot.green{background:#86efac}.dot.red{background:#fca5a5}
+.dot.grey{background:#cbd5e1}.dot.purple{background:#8b5cf6}
+.selected-date{font-size:21px;font-weight:900;margin-bottom:6px;text-transform:capitalize}
+.help{color:var(--muted);font-size:13px;line-height:1.5;margin-bottom:18px}
+.form-grid{display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:15px}
+.field{display:flex;flex-direction:column;gap:7px;min-width:0}
+.field label{font-size:13px;font-weight:800}
+.field input,.field select{
+  width:100%;min-height:47px;padding:11px 12px;
+  border:1px solid #cbd5e1;border-radius:11px;background:#fff;color:var(--text)
+}
+.field input:focus,.field select:focus{outline:2px solid #fdba74;border-color:var(--orange)}
+.field small{color:var(--muted);font-size:11px;line-height:1.4}
+.work-box{padding:16px;border:1px solid #bbf7d0;border-radius:14px;background:#f0fdf4}
+.holiday-box{margin-top:18px;padding:16px;border:1px solid #ddd6fe;border-radius:14px;background:#f5f3ff}
+.work-title{font-weight:900;color:#15803d;margin-bottom:7px}
+.holiday-title{font-weight:900;color:#6d28d9;margin-bottom:7px}
+.holiday-note{color:#6d28d9;font-size:12px;line-height:1.5;margin-top:9px}
+.total-grid{display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:12px;margin-top:18px}
+.total-box{padding:15px;background:#f8fafc;border:1px solid var(--border);border-radius:13px}
+.total-box strong{display:block;font-size:22px;margin-top:6px}
+.actions{display:flex;flex-wrap:wrap;gap:10px;margin-top:18px}
+.btn{border:0;border-radius:11px;padding:13px 16px;font-weight:850;min-height:46px}
+.btn-primary{background:var(--orange);color:#fff;flex:1 1 170px}
+.btn-dark{background:#111827;color:#fff}
+.btn-purple{background:var(--purple);color:#fff}
+.btn-light{background:#f1f5f9;color:#334155;border:1px solid var(--border)}
+.btn-danger{background:#fee2e2;color:#b91c1c}
+.export-card{border:1px solid var(--border);border-radius:14px;padding:16px}
+.export-card h3{margin:0 0 7px;font-size:15px}
+.export-card p{margin:0 0 14px;color:var(--muted);font-size:12px;line-height:1.5}
+.history-row{display:flex;justify-content:space-between;align-items:center;gap:12px;border-top:1px solid var(--border);padding:12px 0}
+.history-main{min-width:0}
+.history-main strong{display:block;font-size:13px}
+.history-main small{display:block;margin-top:5px;color:var(--muted);font-size:11px;line-height:1.6}
+.history-hours{font-weight:900;white-space:nowrap}
+.empty{color:var(--muted);font-size:13px;padding:12px 0}
+footer{text-align:center;color:var(--muted);font-size:11px;padding:5px 15px 25px}
+@media(max-width:600px){
+  header{padding:18px 14px}.brand{font-size:19px}
+  .container{margin-top:14px;padding:0 9px 25px}
+  .panel{padding:14px;border-radius:15px}
+  .stats{gap:7px}.stat{padding:11px 8px;border-radius:12px}
+  .stat-label{font-size:10px}.stat-value{font-size:19px}
+  .day{min-height:61px;padding:7px 2px;border-radius:8px}
+  .day .number{font-size:13px}.day .day-hours{font-size:9px}
+  .day .day-holiday{font-size:8px}
+  .weekdays,.calendar{gap:4px}.weekday{font-size:10px}
+  .form-grid,.total-grid{grid-template-columns:1fr}
+  .month-label{font-size:17px}.selected-date{font-size:19px}
+}
+@media print{
+  body{background:white;color:black}
+  header,.no-print,footer{display:none!important}
+  .container{max-width:none;margin:0;padding:0}
+  .panel,.stat{border:0;box-shadow:none;padding:0;margin:0}
+  #calendarPanel,#editorPanel,#exportPanel,#historyPanel,#statsPanel{display:none!important}
+  #printReport{display:block!important}
+  #printReport h1{font-size:20px}
+  #printReport p{font-size:11px}
+  #printReport table{width:100%;border-collapse:collapse;font-size:10px;margin-top:14px}
+  #printReport th,#printReport td{border:1px solid #999;padding:6px 5px;text-align:left}
+  #printReport th{background:#eee!important}
+  #printReport .print-total{font-size:13px;font-weight:900;margin-top:12px}
+  @page{size:A4;margin:12mm}
 }
 </style>
 </head>
 
 <body>
-
 <header>
   <div class="header-inner">
     <div>
@@ -526,15 +159,15 @@ footer {
   <section class="stats" id="statsPanel">
     <div class="stat">
       <div class="stat-label">ORE LAVORATE · MESE</div>
-      <div class="stat-value green" id="statWork">0 h</div>
+      <div class="stat-value green-text" id="statWork">0 h</div>
     </div>
     <div class="stat">
       <div class="stat-label">ORE FERIE · MESE</div>
-      <div class="stat-value" style="color:#7c3aed" id="statHoliday">0 h</div>
+      <div class="stat-value purple-text" id="statHoliday">0 h</div>
     </div>
     <div class="stat">
-      <div class="stat-label">GIORNI COMPILATI</div>
-      <div class="stat-value orange" id="statDays">0</div>
+      <div class="stat-label">GIORNI REGISTRATI</div>
+      <div class="stat-value orange-text" id="statDays">0</div>
     </div>
   </section>
 
@@ -546,91 +179,91 @@ footer {
     </div>
 
     <div class="weekdays">
-      <div class="weekday">LUN</div>
-      <div class="weekday">MAR</div>
-      <div class="weekday">MER</div>
-      <div class="weekday">GIO</div>
-      <div class="weekday">VEN</div>
-      <div class="weekday">SAB</div>
+      <div class="weekday">LUN</div><div class="weekday">MAR</div>
+      <div class="weekday">MER</div><div class="weekday">GIO</div>
+      <div class="weekday">VEN</div><div class="weekday">SAB</div>
       <div class="weekday">DOM</div>
     </div>
-
     <div class="calendar" id="calendar"></div>
 
     <div class="legend">
-      <span><i class="dot green"></i> Ore inserite</span>
+      <span><i class="dot green"></i> Lavoro registrato</span>
       <span><i class="dot red"></i> Ore mancanti</span>
       <span><i class="dot grey"></i> Weekend</span>
-      <span><i class="dot purple"></i> Ferie inserite</span>
+      <span><i class="dot purple"></i> Ferie registrate</span>
     </div>
     <p class="help" style="margin:14px 0 0">
-      Tocca un giorno per inserire o modificare le ore. I giorni futuri
-      non vengono segnati come mancanti. Le ferie sono facoltative e
-      vengono conteggiate separatamente dalle ore lavorate.
+      Seleziona un giorno per registrare le ore. Puoi inserire solo lavoro,
+      solo ferie oppure entrambi. Per registrare una giornata di ferie
+      non devi compilare gli orari lavorativi.
     </p>
   </section>
 
   <section class="panel" id="editorPanel">
-    <h2 class="section-title">Inserisci le ore</h2>
+    <h2 class="section-title">Registra la giornata</h2>
     <div class="selected-date" id="selectedDate"></div>
-    <div class="help">Inserisci l'orario della giornata selezionata.</div>
+    <p class="help">Compila soltanto le sezioni che ti servono.</p>
 
-    <div class="form-grid">
-      <div class="field">
-        <label for="startTime">Ora di inizio</label>
-        <input id="startTime" type="time" value="08:00">
-      </div>
+    <div class="work-box">
+      <div class="work-title">🔧 Ore lavorative (facoltativo)</div>
+      <p class="help" style="margin-bottom:14px">
+        Lascia vuoti gli orari se quel giorno non hai lavorato.
+      </p>
 
-      <div class="field">
-        <label for="endTime">Ora di fine</label>
-        <input id="endTime" type="time" value="17:00">
-      </div>
-
-      <div class="field">
-        <label for="breakTime">Pausa pranzo</label>
-        <select id="breakTime">
-          <option value="0">0 ore</option>
-          <option value="1" selected>1 ora</option>
-          <option value="2">2 ore</option>
-        </select>
-      </div>
-
-      <div class="field">
-        <label>Ore lavorate effettive</label>
-        <input id="workPreview" type="text" value="8,00 ore" readonly>
-        <small>Calcolate sottraendo la pausa.</small>
+      <div class="form-grid">
+        <div class="field">
+          <label for="startTime">Ora di inizio</label>
+          <input id="startTime" type="time">
+        </div>
+        <div class="field">
+          <label for="endTime">Ora di fine</label>
+          <input id="endTime" type="time">
+        </div>
+        <div class="field">
+          <label for="breakTime">Pausa pranzo</label>
+          <select id="breakTime">
+            <option value="0">0 ore</option>
+            <option value="0.5">30 minuti</option>
+            <option value="1" selected>1 ora</option>
+            <option value="1.5">1 ora e 30 minuti</option>
+            <option value="2">2 ore</option>
+          </select>
+        </div>
+        <div class="field">
+          <label>Ore lavorate calcolate</label>
+          <input id="workPreview" type="text" value="Non inserite" readonly>
+          <small>La pausa viene sottratta automaticamente.</small>
+        </div>
       </div>
     </div>
 
     <div class="holiday-box">
       <div class="holiday-title">🏖️ Ferie (facoltativo)</div>
-      <div class="help" style="margin-bottom:12px">
-        Hai fatto ferie in questa data? Inserisci il numero di ore.
-        Se lasci il campo vuoto, la giornata non viene aggiunta
-        al registro ferie.
-      </div>
-
+      <p class="help" style="margin-bottom:14px">
+        Inserisci le ore di ferie anche se non hai lavorato quel giorno.
+        Per esempio, 4 ore di ferie senza orari lavorativi registrano
+        una giornata con 0 ore lavorate e 4 ore di ferie.
+      </p>
       <div class="field">
-        <label for="holidayHours">Ore di ferie della giornata</label>
+        <label for="holidayHours">Ore di ferie</label>
         <input id="holidayHours" type="number" min="0.01" max="24"
-               step="0.25" placeholder="Es. 8">
-        <small>Puoi inserire anche mezze ore o quarti d'ora.
-          Le ferie non vengono sommate alle ore lavorate.</small>
+          step="0.25" placeholder="Es. 4 oppure 8">
+        <small>Lascia vuoto se non hai fatto ferie.</small>
       </div>
-
       <div class="holiday-note" id="holidayStatus">
-        Nessuna ora di ferie inserita per questa data.
+        Nessuna ora di ferie inserita.
       </div>
     </div>
 
-    <div class="total-box">
-      <div>
+    <div class="total-grid">
+      <div class="total-box">
         <div style="font-size:12px;color:#64748b">Totale ore lavorate</div>
-        <div style="font-size:12px;color:#64748b;margin-top:4px">
-          Escluse le ferie
-        </div>
+        <strong class="green-text" id="totalPreview">0,00 h</strong>
       </div>
-      <strong id="totalPreview">8,00 h</strong>
+      <div class="total-box">
+        <div style="font-size:12px;color:#64748b">Totale ore ferie</div>
+        <strong class="purple-text" id="holidayPreview">0,00 h</strong>
+      </div>
     </div>
 
     <div class="actions">
@@ -641,35 +274,20 @@ footer {
   </section>
 
   <section class="panel" id="exportPanel">
-    <h2 class="section-title">Esporta i tuoi registri</h2>
-
-    <div class="export-grid">
-      <div class="export-card">
-        <h3>📄 PDF ore lavorate</h3>
-        <p>
-          Registro mensile con date, inizio, fine, pausa, ore effettive
-          e totale mensile, pronto da stampare o salvare.
-        </p>
-        <button class="btn btn-dark" id="pdfWork" style="width:100%">
-          PDF ore lavoro
-        </button>
-      </div>
-
-      <div class="export-card">
-        <h3>🏖️ PDF ore ferie</h3>
-        <p>
-          Registro separato con esclusivamente le date in cui hai
-          inserito ferie, le ore di ogni giornata e il totale.
-        </p>
-        <button class="btn btn-purple" id="pdfHoliday" style="width:100%">
-          PDF ore ferie
-        </button>
-      </div>
+    <h2 class="section-title">PDF mensile unico</h2>
+    <div class="export-card">
+      <h3>📄 Ore lavorate + ferie</h3>
+      <p>
+        Crea un solo PDF con tutte le date del mese, le ore lavorate,
+        le ore di ferie e i totali separati. Le giornate con sole ferie
+        vengono incluse anche se non hanno orari di lavoro.
+      </p>
+      <button class="btn btn-dark" id="pdfAll" style="width:100%">
+        Genera PDF mensile completo
+      </button>
     </div>
-
     <p class="help" style="margin:14px 0 0">
-      Per creare il PDF, scegli “Salva come PDF” nella finestra
-      di stampa. I due documenti sono indipendenti.
+      Nella finestra di stampa seleziona “Salva come PDF”.
     </p>
   </section>
 
@@ -679,7 +297,6 @@ footer {
   </section>
 
   <section id="printReport" style="display:none"></section>
-
 </main>
 
 <footer>
@@ -687,565 +304,448 @@ footer {
 </footer>
 
 <script>
-(function () {
-  "use strict";
+(function(){
+"use strict";
 
-  const STORAGE_KEY = "oreLavoroRecords";
-  const $ = id => document.getElementById(id);
+const STORAGE_KEY = "oreLavoroRecords";
+const $ = id => document.getElementById(id);
 
-  let records = {};
-  let selectedDate = localDateKey(new Date());
-  let shownYear = new Date().getFullYear();
-  let shownMonth = new Date().getMonth();
+let records = {};
+let selectedDate = localDateKey(new Date());
+let shownYear = new Date().getFullYear();
+let shownMonth = new Date().getMonth();
 
-  function localDateKey(date) {
-    const y = date.getFullYear();
-    const m = String(date.getMonth() + 1).padStart(2, "0");
-    const d = String(date.getDate()).padStart(2, "0");
-    return `${y}-${m}-${d}`;
-  }
+function localDateKey(date){
+  return date.getFullYear()+"-"+
+    String(date.getMonth()+1).padStart(2,"0")+"-"+
+    String(date.getDate()).padStart(2,"0");
+}
 
-  function parseDate(key) {
-    const parts = key.split("-").map(Number);
-    return new Date(parts[0], parts[1] - 1, parts[2]);
-  }
+function parseDate(key){
+  const [y,m,d] = key.split("-").map(Number);
+  return new Date(y,m-1,d);
+}
 
-  function formatDate(key) {
-    return parseDate(key).toLocaleDateString("it-IT", {
-      weekday: "long",
-      day: "2-digit",
-      month: "long",
-      year: "numeric"
+function formatDate(key){
+  return parseDate(key).toLocaleDateString("it-IT",{
+    weekday:"long",day:"2-digit",month:"long",year:"numeric"
+  });
+}
+
+function hoursText(value){
+  return Number(value||0).toLocaleString("it-IT",{
+    minimumFractionDigits:2,maximumFractionDigits:2
+  });
+}
+
+function escapeHTML(value){
+  return String(value??"").replace(/[&<>"']/g,c=>({
+    "&":"&amp;","<":"&lt;",">":"&gt;",'"':"&quot;","'":"&#39;"
+  })[c]);
+}
+
+function loadRecords(){
+  try{
+    records=JSON.parse(localStorage.getItem(STORAGE_KEY)||"{}");
+    if(!records||typeof records!=="object"||Array.isArray(records))records={};
+
+    Object.keys(records).forEach(key=>{
+      const r=records[key];
+      if(!r||typeof r!=="object"){delete records[key];return;}
+      if(r.breakHours===undefined)r.breakHours=1;
+      if(r.holidayHours===undefined)r.holidayHours=null;
     });
+  }catch(e){
+    records={};
+    alert("Non è stato possibile leggere i dati salvati nel browser.");
+  }
+}
+
+function persist(){
+  try{
+    localStorage.setItem(STORAGE_KEY,JSON.stringify(records));
+    return true;
+  }catch(e){
+    alert("Salvataggio non riuscito. Controlla la memoria del browser.");
+    return false;
+  }
+}
+
+function timeToMinutes(value){
+  if(!value||!/^\d{2}:\d{2}$/.test(value))return null;
+  const [h,m]=value.split(":").map(Number);
+  if(h>23||m>59)return null;
+  return h*60+m;
+}
+
+function calculateWork(start,end,pause){
+  const a=timeToMinutes(start),b=timeToMinutes(end);
+  if(a===null||b===null||b<=a)return null;
+  const minutes=b-a-Number(pause)*60;
+  if(minutes<0)return null;
+  return Math.round(minutes/60*100)/100;
+}
+
+function getRecordHours(r){
+  if(!r||!r.startTime||!r.endTime)return 0;
+  const value=calculateWork(r.startTime,r.endTime,r.breakHours??1);
+  return value===null?0:value;
+}
+
+function getHolidayHours(r){
+  if(!r||r.holidayHours===null||r.holidayHours===undefined||r.holidayHours==="")return 0;
+  return Number(r.holidayHours)||0;
+}
+
+function validHoliday(value){
+  if(value==="")return null;
+  const n=Number(value);
+  if(!Number.isFinite(n)||n<=0||n>24)return "invalid";
+  return Math.round(n*100)/100;
+}
+
+function monthRecords(){
+  const prefix=shownYear+"-"+String(shownMonth+1).padStart(2,"0")+"-";
+  return Object.keys(records).filter(k=>k.startsWith(prefix)).sort();
+}
+
+function monthTotals(){
+  let work=0,holiday=0,days=0;
+  monthRecords().forEach(key=>{
+    const r=records[key];
+    work+=getRecordHours(r);
+    holiday+=getHolidayHours(r);
+    if(getRecordHours(r)>0||getHolidayHours(r)>0)days++;
+  });
+  return {work,holiday,days};
+}
+
+function isWeekend(date){
+  return date.getDay()===0||date.getDay()===6;
+}
+
+function renderCalendar(){
+  const first=new Date(shownYear,shownMonth,1);
+  const days=new Date(shownYear,shownMonth+1,0).getDate();
+  const offset=(first.getDay()+6)%7;
+  const today=localDateKey(new Date());
+
+  $("monthLabel").textContent=first.toLocaleDateString("it-IT",{
+    month:"long",year:"numeric"
+  });
+
+  const calendar=$("calendar");
+  calendar.innerHTML="";
+
+  for(let i=0;i<offset;i++){
+    calendar.appendChild(document.createElement("div"));
   }
 
-  function monthKey(y, m) {
-    return `${y}-${String(m + 1).padStart(2, "0")}`;
-  }
+  for(let d=1;d<=days;d++){
+    const date=new Date(shownYear,shownMonth,d);
+    const key=localDateKey(date);
+    const r=records[key];
+    const work=getRecordHours(r);
+    const holiday=getHolidayHours(r);
+    const weekend=isWeekend(date);
+    const future=key>today;
+    const hasWork=work>0;
+    const hasHoliday=holiday>0;
 
-  function hoursText(value) {
-    return Number(value || 0).toLocaleString("it-IT", {
-      minimumFractionDigits: 2,
-      maximumFractionDigits: 2
+    const button=document.createElement("button");
+    button.type="button";
+    button.className="day";
+
+    if(weekend)button.classList.add("weekend");
+    else if(hasWork)button.classList.add("completed");
+    else if(!future&&!hasHoliday)button.classList.add("missing");
+    else button.classList.add("future");
+
+    if(hasHoliday)button.classList.add("has-holiday");
+    if(key===selectedDate)button.classList.add("selected");
+    if(key===today)button.classList.add("today");
+
+    let html=`<span class="number">${d}</span>`;
+    if(hasWork)html+=`<span class="day-hours">${hoursText(work)} h lav.</span>`;
+    if(hasHoliday)html+=`<span class="day-holiday">${hoursText(holiday)} h ferie</span>`;
+
+    button.innerHTML=html;
+    button.setAttribute("aria-label",formatDate(key));
+    button.addEventListener("click",()=>{
+      selectedDate=key;
+      renderAll();
+      $("editorPanel").scrollIntoView({behavior:"smooth",block:"start"});
     });
+    calendar.appendChild(button);
   }
 
-  function escapeHTML(value) {
-    return String(value).replace(/[&<>"']/g, char => ({
-      "&": "&amp;",
-      "<": "&lt;",
-      ">": "&gt;",
-      '"': "&quot;",
-      "'": "&#39;"
-    })[char]);
-  }
+  const t=monthTotals();
+  $("statWork").textContent=hoursText(t.work)+" h";
+  $("statHoliday").textContent=hoursText(t.holiday)+" h";
+  $("statDays").textContent=String(t.days);
+}
 
-  function loadRecords() {
-    try {
-      const raw = localStorage.getItem(STORAGE_KEY);
-      records = raw ? JSON.parse(raw) : {};
+function renderEditor(){
+  $("selectedDate").textContent=formatDate(selectedDate);
+  const r=records[selectedDate];
 
-      if (!records || typeof records !== "object" ||
-          Array.isArray(records)) records = {};
+  $("startTime").value=r?.startTime||"";
+  $("endTime").value=r?.endTime||"";
+  $("breakTime").value=String(r?.breakHours??1);
+  $("holidayHours").value=getHolidayHours(r)>0?String(r.holidayHours):"";
+  updatePreview();
+}
 
-      // Compatibilità con le versioni precedenti:
-      // i vecchi record senza pausa conservano la pausa di un'ora.
-      Object.keys(records).forEach(key => {
-        const r = records[key];
-        if (!r || typeof r !== "object") {
-          delete records[key];
-          return;
-        }
-        if (r.breakHours === undefined) r.breakHours = 1;
-        if (r.holidayHours === undefined) r.holidayHours = null;
-      });
-    } catch (error) {
-      records = {};
-      alert("Non è stato possibile leggere i dati salvati. Controlla il browser.");
+function updatePreview(){
+  const start=$("startTime").value;
+  const end=$("endTime").value;
+  const pause=Number($("breakTime").value);
+
+  let work=0;
+
+  if(start===""&&end===""){
+    $("workPreview").value="Non inserite";
+  }else if(start!==""&&end!==""){
+    const result=calculateWork(start,end,pause);
+    if(result===null){
+      $("workPreview").value="Controlla gli orari";
+    }else{
+      work=result;
+      $("workPreview").value=hoursText(result)+" ore";
     }
+  }else{
+    $("workPreview").value="Completa entrambi gli orari";
   }
 
-  function persist() {
-    try {
-      localStorage.setItem(STORAGE_KEY, JSON.stringify(records));
-      return true;
-    } catch (error) {
-      alert("Salvataggio non riuscito. La memoria del browser potrebbe essere piena.");
-      return false;
-    }
+  $("totalPreview").textContent=hoursText(work)+" h";
+
+  const holiday=validHoliday($("holidayHours").value);
+  if($("holidayHours").value===""){
+    $("holidayStatus").textContent="Nessuna ora di ferie inserita.";
+    $("holidayPreview").textContent="0,00 h";
+  }else if(holiday==="invalid"){
+    $("holidayStatus").textContent="Inserisci un valore maggiore di 0 e massimo 24.";
+    $("holidayPreview").textContent="Valore non valido";
+  }else{
+    $("holidayStatus").textContent="Ferie da registrare: "+hoursText(holiday)+" ore.";
+    $("holidayPreview").textContent=hoursText(holiday)+" h";
+  }
+}
+
+function renderHistory(){
+  const container=$("history");
+  const keys=monthRecords().filter(key=>{
+    const r=records[key];
+    return getRecordHours(r)>0||getHolidayHours(r)>0;
+  }).reverse();
+
+  if(!keys.length){
+    container.innerHTML='<div class="empty">Nessuna giornata registrata in questo mese.</div>';
+    return;
   }
 
-  function timeToMinutes(value) {
-    if (!value || !/^\d{2}:\d{2}$/.test(value)) return null;
-    const parts = value.split(":").map(Number);
-    if (parts[0] > 23 || parts[1] > 59) return null;
-    return parts[0] * 60 + parts[1];
-  }
+  container.innerHTML=keys.map(key=>{
+    const r=records[key];
+    const work=getRecordHours(r);
+    const holiday=getHolidayHours(r);
+    let detail="";
 
-  function calculateWork(start, end, pause) {
-    const a = timeToMinutes(start);
-    const b = timeToMinutes(end);
-
-    if (a === null || b === null || b <= a) return null;
-
-    const totalMinutes = b - a - Number(pause) * 60;
-    if (totalMinutes < 0) return null;
-
-    return totalMinutes / 60;
-  }
-
-  function getRecordHours(record) {
-    if (!record) return 0;
-
-    if (Number.isFinite(Number(record.workHours))) {
-      return Number(record.workHours);
-    }
-
-    const result = calculateWork(
-      record.startTime,
-      record.endTime,
-      record.breakHours === undefined ? 1 : record.breakHours
-    );
-
-    return result === null ? 0 : result;
-  }
-
-  function validHoliday(value) {
-    if (value === "" || value === null || value === undefined) {
-      return null;
+    if(work>0){
+      detail+=`Lavoro: ${escapeHTML(r.startTime)}–${escapeHTML(r.endTime)} · Pausa ${escapeHTML(r.breakHours)} h · ${hoursText(work)} h`;
+    }else{
+      detail+="Nessuna ora lavorata";
     }
 
-    const n = Number(value);
-    if (!Number.isFinite(n) || n <= 0 || n > 24) return "invalid";
-
-    return Math.round(n * 100) / 100;
-  }
-
-  function monthRecords() {
-    const prefix = monthKey(shownYear, shownMonth) + "-";
-    return Object.keys(records)
-      .filter(key => key.startsWith(prefix))
-      .sort();
-  }
-
-  function monthTotals() {
-    const keys = monthRecords();
-    let work = 0;
-    let holiday = 0;
-    let days = 0;
-
-    keys.forEach(key => {
-      const r = records[key];
-      if (r.startTime && r.endTime) {
-        work += getRecordHours(r);
-        days++;
-      }
-
-      if (r.holidayHours !== null && r.holidayHours !== undefined) {
-        holiday += Number(r.holidayHours) || 0;
-      }
-    });
-
-    return { work, holiday, days };
-  }
-
-  function isWeekend(date) {
-    return date.getDay() === 0 || date.getDay() === 6;
-  }
-
-  function renderCalendar() {
-    const first = new Date(shownYear, shownMonth, 1);
-    const daysInMonth = new Date(shownYear, shownMonth + 1, 0).getDate();
-    let offset = (first.getDay() + 6) % 7;
-
-    $("monthLabel").textContent = first.toLocaleDateString("it-IT", {
-      month: "long",
-      year: "numeric"
-    });
-
-    const today = localDateKey(new Date());
-    const container = $("calendar");
-    container.innerHTML = "";
-
-    for (let i = 0; i < offset; i++) {
-      const blank = document.createElement("div");
-      blank.setAttribute("aria-hidden", "true");
-      container.appendChild(blank);
+    if(holiday>0){
+      detail+=`<br><span style="color:#7c3aed;font-weight:800">Ferie: ${hoursText(holiday)} h</span>`;
     }
 
-    for (let day = 1; day <= daysInMonth; day++) {
-      const date = new Date(shownYear, shownMonth, day);
-      const key = localDateKey(date);
-      const record = records[key];
-      const weekend = isWeekend(date);
-      const future = key > today;
-      const hasWork = !!(record && record.startTime && record.endTime);
-      const hasHoliday = !!(
-        record &&
-        record.holidayHours !== null &&
-        record.holidayHours !== undefined &&
-        Number(record.holidayHours) > 0
-      );
+    return `<div class="history-row">
+      <div class="history-main">
+        <strong>${escapeHTML(formatDate(key))}</strong>
+        <small>${detail}</small>
+      </div>
+      <div class="history-hours" style="color:${holiday>0?"#7c3aed":"#16a34a"}">
+        ${work>0?hoursText(work)+" h":""}
+        ${work>0&&holiday>0?"<br>":""}
+        ${holiday>0?hoursText(holiday)+" h ferie":""}
+      </div>
+    </div>`;
+  }).join("");
+}
 
-      const button = document.createElement("button");
-      button.type = "button";
-      button.className = "day";
+function renderAll(){
+  renderCalendar();
+  renderEditor();
+  renderHistory();
+}
 
-      if (weekend) button.classList.add("weekend");
-      else if (hasWork) button.classList.add("completed");
-      else if (!future) button.classList.add("missing");
-      else button.classList.add("future");
+function saveDay(){
+  const start=$("startTime").value;
+  const end=$("endTime").value;
+  const pause=Number($("breakTime").value);
+  const holiday=validHoliday($("holidayHours").value);
 
-      if (hasHoliday) button.classList.add("has-holiday");
-      if (key === selectedDate) button.classList.add("selected");
-      if (key === today) button.classList.add("today");
-
-      let content = `<span class="number">${day}</span>`;
-
-      if (hasWork) {
-        content += `<span class="day-hours">${hoursText(getRecordHours(record))} h</span>`;
-      } else if (hasHoliday) {
-        content += `<span class="day-hours">Ferie</span>`;
-      }
-
-      if (hasHoliday) {
-        content += `<span class="day-holiday">${hoursText(record.holidayHours)} h</span>`;
-      }
-
-      button.innerHTML = content;
-      button.setAttribute("aria-label", formatDate(key));
-      button.addEventListener("click", () => {
-        selectedDate = key;
-        renderAll();
-        $("editorPanel").scrollIntoView({ behavior: "smooth", block: "start" });
-      });
-
-      container.appendChild(button);
-    }
-
-    const totals = monthTotals();
-    $("statWork").textContent = hoursText(totals.work) + " h";
-    $("statHoliday").textContent = hoursText(totals.holiday) + " h";
-    $("statDays").textContent = String(totals.days);
+  if(holiday==="invalid"){
+    alert("Inserisci un numero di ore ferie maggiore di 0 e massimo 24. Per non registrare ferie, lascia il campo vuoto.");
+    return;
   }
 
-  function renderEditor() {
-    $("selectedDate").textContent = formatDate(selectedDate);
+  let work=0;
 
-    const record = records[selectedDate];
-
-    $("startTime").value = record?.startTime || "08:00";
-    $("endTime").value = record?.endTime || "17:00";
-    $("breakTime").value = String(
-      record?.breakHours === undefined ? 1 : record.breakHours
-    );
-    $("holidayHours").value =
-      record?.holidayHours !== null && record?.holidayHours !== undefined
-        ? String(record.holidayHours)
-        : "";
-
-    updatePreview();
-  }
-
-  function updatePreview() {
-    const start = $("startTime").value;
-    const end = $("endTime").value;
-    const pause = Number($("breakTime").value);
-    const result = calculateWork(start, end, pause);
-
-    if (result === null) {
-      $("workPreview").value = "Controlla gli orari";
-      $("totalPreview").textContent = "--";
-    } else {
-      $("workPreview").value = hoursText(result) + " ore";
-      $("totalPreview").textContent = hoursText(result) + " h";
-    }
-
-    const holiday = validHoliday($("holidayHours").value);
-
-    if ($("holidayHours").value === "") {
-      $("holidayStatus").textContent =
-        "Nessuna ora di ferie inserita per questa data.";
-    } else if (holiday === "invalid") {
-      $("holidayStatus").textContent =
-        "Inserisci un valore maggiore di 0 e non superiore a 24.";
-    } else {
-      $("holidayStatus").textContent =
-        "Ferie da registrare: " + hoursText(holiday) + " ore.";
-    }
-  }
-
-  function renderHistory() {
-    const container = $("history");
-    const keys = monthRecords().filter(key => {
-      const r = records[key];
-      return (r.startTime && r.endTime) ||
-        (r.holidayHours !== null &&
-         r.holidayHours !== undefined &&
-         Number(r.holidayHours) > 0);
-    }).reverse();
-
-    if (!keys.length) {
-      container.innerHTML = '<div class="empty">Nessuna giornata registrata in questo mese.</div>';
-      return;
-    }
-
-    container.innerHTML = keys.map(key => {
-      const r = records[key];
-      const hasWork = !!(r.startTime && r.endTime);
-      const hasHoliday = r.holidayHours !== null &&
-        r.holidayHours !== undefined && Number(r.holidayHours) > 0;
-
-      let detail = "";
-
-      if (hasWork) {
-        detail += `${escapeHTML(r.startTime)}–${escapeHTML(r.endTime)} · Pausa ${escapeHTML(r.breakHours)} h`;
-      }
-
-      if (hasHoliday) {
-        if (detail) detail += "<br>";
-        detail += `<span style="color:#7c3aed;font-weight:800">Ferie: ${hoursText(r.holidayHours)} h</span>`;
-      }
-
-      return `
-        <div class="history-row">
-          <div class="history-main">
-            <strong>${escapeHTML(formatDate(key))}</strong>
-            <small>${detail}</small>
-          </div>
-          <div class="history-hours" style="${hasWork ? "color:#16a34a" : "color:#7c3aed"}">
-            ${hasWork ? hoursText(getRecordHours(r)) + " h" : "Ferie"}
-          </div>
-        </div>`;
-    }).join("");
-  }
-
-  function renderAll() {
-    renderCalendar();
-    renderEditor();
-    renderHistory();
-  }
-
-  function saveDay() {
-    const start = $("startTime").value;
-    const end = $("endTime").value;
-    const pause = Number($("breakTime").value);
-    const rawHoliday = $("holidayHours").value;
-    const holiday = validHoliday(rawHoliday);
-
-    if (!start || !end) {
-      alert("Inserisci l'ora di inizio e l'ora di fine.");
-      return;
-    }
-
-    const work = calculateWork(start, end, pause);
-
-    if (work === null) {
+  // Entrambi gli orari vuoti significa che la giornata può essere
+  // registrata come sola ferie, senza obbligo di orario lavorativo.
+  if(start===""&&end===""){
+    work=0;
+  }else if(start!==""&&end!==""){
+    const result=calculateWork(start,end,pause);
+    if(result===null){
       alert("Gli orari non sono validi. Controlla inizio, fine e pausa.");
       return;
     }
-
-    if (holiday === "invalid") {
-      alert("Le ore di ferie devono essere maggiori di 0 e non superiori a 24. Per non registrare ferie, lascia il campo vuoto.");
-      return;
-    }
-
-    const record = {
-      startTime: start,
-      endTime: end,
-      breakHours: pause,
-      workHours: Math.round(work * 100) / 100,
-      updatedAt: new Date().toISOString()
-    };
-
-    // La proprietà ferie viene aggiunta solo se le ferie sono state inserite.
-    if (holiday !== null) {
-      record.holidayHours = holiday;
-    }
-
-    records[selectedDate] = record;
-
-    if (!persist()) return;
-
-    renderAll();
-    alert("Giornata salvata correttamente.");
+    work=result;
+  }else{
+    alert("Per registrare il lavoro devi inserire sia l'ora di inizio sia quella di fine. Se hai fatto solo ferie, lascia entrambi i campi vuoti.");
+    return;
   }
 
-  function clearForm() {
-    $("startTime").value = "";
-    $("endTime").value = "";
-    $("breakTime").value = "0";
-    $("holidayHours").value = "";
-    updatePreview();
+  if(work===0&&holiday===null){
+    alert("Inserisci le ore lavorate oppure le ore di ferie.");
+    return;
   }
 
-  function deleteDay() {
-    if (!records[selectedDate]) {
-      alert("Non ci sono dati da eliminare per questa data.");
-      return;
-    }
+  const record={updatedAt:new Date().toISOString()};
 
-    if (!confirm("Vuoi eliminare tutte le registrazioni di questa giornata, comprese le eventuali ferie?")) {
-      return;
-    }
-
-    delete records[selectedDate];
-    if (!persist()) return;
-
-    renderAll();
-    alert("Registrazione eliminata.");
+  if(start!==""&&end!==""){
+    record.startTime=start;
+    record.endTime=end;
+    record.breakHours=pause;
+    record.workHours=work;
   }
 
-  function escapeCSV(value) {
-    const text = String(value ?? "");
-    return '"' + text.replace(/"/g, '""') + '"';
+  if(holiday!==null){
+    record.holidayHours=holiday;
   }
 
-  function downloadCSV(filename, rows) {
-    const csv = "\uFEFF" + rows.map(row => row.map(escapeCSV).join(";")).join("\r\n");
-    const blob = new Blob([csv], { type: "text/csv;charset=utf-8;" });
-    const url = URL.createObjectURL(blob);
-    const a = document.createElement("a");
-    a.href = url;
-    a.download = filename;
-    document.body.appendChild(a);
-    a.click();
-    a.remove();
-    URL.revokeObjectURL(url);
-  }
+  records[selectedDate]=record;
+  if(!persist())return;
 
-  function preparePrint(type) {
-    const keys = monthRecords();
-    const report = $("printReport");
-    const titleMonth = new Date(shownYear, shownMonth, 1)
-      .toLocaleDateString("it-IT", { month: "long", year: "numeric" });
-
-    let title = "";
-    let description = "";
-    let headers = [];
-    let rows = [];
-    let total = 0;
-
-    if (type === "work") {
-      title = "REGISTRO MENSILE ORE LAVORATE";
-      description = "Mese: " + titleMonth;
-      headers = ["Data", "Inizio", "Fine", "Pausa (h)", "Ore lavorate"];
-
-      keys.forEach(key => {
-        const r = records[key];
-        if (!r.startTime || !r.endTime) return;
-
-        const hours = getRecordHours(r);
-        total += hours;
-
-        rows.push([
-          formatDate(key),
-          r.startTime,
-          r.endTime,
-          String(r.breakHours),
-          hoursText(hours)
-        ]);
-      });
-
-      report.innerHTML = `
-        <h1>${title}</h1>
-        <p>${escapeHTML(description)}</p>
-        ${buildPrintTable(headers, rows)}
-        <div class="print-total">Totale ore lavorate: ${hoursText(total)} h</div>
-        <p>Firma: __________________________________________</p>`;
-    } else {
-      title = "REGISTRO MENSILE ORE FERIE";
-      description = "Mese: " + titleMonth;
-      headers = ["Data", "Ore di ferie"];
-
-      keys.forEach(key => {
-        const r = records[key];
-        if (r.holidayHours === null ||
-            r.holidayHours === undefined ||
-            !(Number(r.holidayHours) > 0)) return;
-
-        const hours = Number(r.holidayHours);
-        total += hours;
-
-        rows.push([formatDate(key), hoursText(hours)]);
-      });
-
-      report.innerHTML = `
-        <h1>${title}</h1>
-        <p>${escapeHTML(description)}</p>
-        ${buildPrintTable(headers, rows)}
-        <div class="print-total">Totale ore ferie: ${hoursText(total)} h</div>
-        <p>Firma: __________________________________________</p>`;
-
-      if (rows.length === 0) {
-        alert("Non ci sono ore di ferie inserite per questo mese. Inserisci prima le ferie in una giornata.");
-        report.innerHTML = "";
-        return;
-      }
-    }
-
-    window.print();
-  }
-
-  function buildPrintTable(headers, rows) {
-    let html = "<table><thead><tr>";
-
-    headers.forEach(header => {
-      html += `<th>${escapeHTML(header)}</th>`;
-    });
-
-    html += "</tr></thead><tbody>";
-
-    if (!rows.length) {
-      html += `<tr><td colspan="${headers.length}">Nessuna registrazione nel mese.</td></tr>`;
-    } else {
-      rows.forEach(row => {
-        html += "<tr>";
-        row.forEach(cell => {
-          html += `<td>${escapeHTML(cell)}</td>`;
-        });
-        html += "</tr>";
-      });
-    }
-
-    html += "</tbody></table>";
-    return html;
-  }
-
-  $("startTime").addEventListener("input", updatePreview);
-  $("endTime").addEventListener("input", updatePreview);
-  $("breakTime").addEventListener("change", updatePreview);
-  $("holidayHours").addEventListener("input", updatePreview);
-
-  $("saveDay").addEventListener("click", saveDay);
-  $("clearForm").addEventListener("click", clearForm);
-  $("deleteDay").addEventListener("click", deleteDay);
-
-  $("prevMonth").addEventListener("click", () => {
-    shownMonth--;
-    if (shownMonth < 0) {
-      shownMonth = 11;
-      shownYear--;
-    }
-    renderAll();
-  });
-
-  $("nextMonth").addEventListener("click", () => {
-    shownMonth++;
-    if (shownMonth > 11) {
-      shownMonth = 0;
-      shownYear++;
-    }
-    renderAll();
-  });
-
-  $("pdfWork").addEventListener("click", () => preparePrint("work"));
-  $("pdfHoliday").addEventListener("click", () => preparePrint("holiday"));
-
-  loadRecords();
   renderAll();
+  alert("Giornata salvata correttamente.");
+}
+
+function clearForm(){
+  $("startTime").value="";
+  $("endTime").value="";
+  $("breakTime").value="1";
+  $("holidayHours").value="";
+  updatePreview();
+}
+
+function deleteDay(){
+  if(!records[selectedDate]){
+    alert("Non ci sono registrazioni da eliminare per questa data.");
+    return;
+  }
+  if(!confirm("Vuoi eliminare tutte le registrazioni di questa giornata, comprese le ferie?"))return;
+  delete records[selectedDate];
+  if(!persist())return;
+  renderAll();
+  alert("Registrazione eliminata.");
+}
+
+function buildPrintTable(headers,rows){
+  let html="<table><thead><tr>";
+  headers.forEach(h=>html+=`<th>${escapeHTML(h)}</th>`);
+  html+="</tr></thead><tbody>";
+
+  if(!rows.length){
+    html+=`<tr><td colspan="${headers.length}">Nessuna registrazione nel mese.</td></tr>`;
+  }else{
+    rows.forEach(row=>{
+      html+="<tr>";
+      row.forEach(cell=>html+=`<td>${escapeHTML(cell)}</td>`);
+      html+="</tr>";
+    });
+  }
+  return html+"</tbody></table>";
+}
+
+function preparePDF(){
+  const keys=monthRecords();
+  const titleMonth=new Date(shownYear,shownMonth,1).toLocaleDateString("it-IT",{
+    month:"long",year:"numeric"
+  });
+
+  const rows=[];
+  let totalWork=0,totalHoliday=0;
+
+  keys.forEach(key=>{
+    const r=records[key];
+    const work=getRecordHours(r);
+    const holiday=getHolidayHours(r);
+
+    if(work<=0&&holiday<=0)return;
+
+    totalWork+=work;
+    totalHoliday+=holiday;
+
+    rows.push([
+      formatDate(key),
+      work>0?r.startTime:"—",
+      work>0?r.endTime:"—",
+      work>0?hoursText(r.breakHours)+" h":"—",
+      hoursText(work)+" h",
+      hoursText(holiday)+" h"
+    ]);
+  });
+
+  if(rows.length===0){
+    alert("Non ci sono ore lavorate o ferie registrate in questo mese.");
+    return;
+  }
+
+  $("printReport").innerHTML=`
+    <h1>REGISTRO MENSILE ORE LAVORATE E FERIE</h1>
+    <p><strong>Mese:</strong> ${escapeHTML(titleMonth)}</p>
+    <p>Le ore lavorate e le ore di ferie sono conteggiate separatamente.</p>
+    ${buildPrintTable(
+      ["Data","Inizio","Fine","Pausa","Ore lavorate","Ore ferie"],
+      rows
+    )}
+    <div class="print-total">Totale ore lavorate: ${hoursText(totalWork)} h</div>
+    <div class="print-total">Totale ore ferie: ${hoursText(totalHoliday)} h</div>
+    <div class="print-total">Totale complessivo registrato: ${hoursText(totalWork+totalHoliday)} h</div>
+    <p style="margin-top:28px">Firma: __________________________________________</p>
+  `;
+
+  window.print();
+}
+
+$("startTime").addEventListener("input",updatePreview);
+$("endTime").addEventListener("input",updatePreview);
+$("breakTime").addEventListener("change",updatePreview);
+$("holidayHours").addEventListener("input",updatePreview);
+$("saveDay").addEventListener("click",saveDay);
+$("clearForm").addEventListener("click",clearForm);
+$("deleteDay").addEventListener("click",deleteDay);
+$("pdfAll").addEventListener("click",preparePDF);
+
+$("prevMonth").addEventListener("click",()=>{
+  shownMonth--;
+  if(shownMonth<0){shownMonth=11;shownYear--;}
+  renderAll();
+});
+
+$("nextMonth").addEventListener("click",()=>{
+  shownMonth++;
+  if(shownMonth>11){shownMonth=0;shownYear++;}
+  renderAll();
+});
+
+loadRecords();
+renderAll();
 })();
 </script>
-
 </body>
 </html>
