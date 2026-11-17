@@ -265,14 +265,18 @@ return Math.max(0,minutes-Math.round(Math.max(0,num(br))*60))/60;
 function getRecordHours(r){return r?calculateWork(r.startTime,r.endTime,r.breakHours):0}
 function getHolidayHours(r){return r&&r.holidayEnabled?Math.max(0,num(r.holidayHours)):0}
 
-// Calcola le ore effettive da sommare al monte ore settimanale
+// CORRETTO: Se scooterEnabled è attivo, consideriamo le ore di ferie come "già comprese nel monte ore", 
+// quindi nel conteggio delle ore fatte nella settimana contiamo il valore delle ferie stesse 
+// (equivalente a dire che quella giornata copre interamente la sua quota senza creare extra o buchi negativi doppi).
 function getEffectiveHours(r){
 if(!r)return 0;
 const work=getRecordHours(r);
 const holiday=getHolidayHours(r);
-// Se le ferie sono "già comprese" (scooterEnabled), non aggiungiamo le ore di ferie al totale 
-// perché fanno già parte del monte ore base settimanale (le 24h concordate).
-if(r.scooterEnabled) return work; 
+if(r.scooterEnabled){
+  // Se c'è lo scooter, la giornata contribuisce per il suo valore di ferie (es. 5h) 
+  // oppure per il lavorato se presente, evitando di sottrarle due volte.
+  return work + holiday;
+}
 return work + holiday;
 }
 
@@ -306,15 +310,26 @@ const range=getWeekRange(dateKey);
 let current=parseDate(range.start);
 let end=parseDate(range.end);
 let totalHours=0;
+let expectedTotal=WEEKLY_EXPECTED_HOURS;
 
 while(current<=end){
 const k=localDateKey(current);
 if(records[k]){
-totalHours+=getEffectiveHours(records[k]);
+  const r=records[k];
+  if(r.scooterEnabled){
+    // Se la giornata ha lo scooter, significa che le ore di ferie (es. 5h) sono già incluse 
+    // nel monte ore settimanale stabilito. Scaliamo l'obiettivo di quelle ore 
+    // oppure le contiamo nel totale in modo neutro.
+    const hol=getHolidayHours(r);
+    expectedTotal -= hol; // Riduciamo le 24 ore dell'obiettivo della giornata coperta da ferie comprese
+    totalHours += getRecordHours(r); // Eventuale lavoro extra fatto in quel giorno
+  }else{
+    totalHours += getEffectiveHours(r);
+  }
 }
 current.setDate(current.getDate()+1);
 }
-return totalHours - WEEKLY_EXPECTED_HOURS;
+return totalHours - expectedTotal;
 }
 
 function monthKeys(y,m){
