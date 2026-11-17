@@ -265,12 +265,14 @@ return Math.max(0,minutes-Math.round(Math.max(0,num(br))*60))/60;
 function getRecordHours(r){return r?calculateWork(r.startTime,r.endTime,r.breakHours):0}
 function getHolidayHours(r){return r&&r.holidayEnabled?Math.max(0,num(r.holidayHours)):0}
 
-// Calcola le ore totali (lavoro + ferie se non già comprese) per una determinata data
+// Calcola le ore effettive da sommare al monte ore settimanale
 function getEffectiveHours(r){
 if(!r)return 0;
 const work=getRecordHours(r);
 const holiday=getHolidayHours(r);
-if(r.scooterEnabled) return work; // se le ferie sono già comprese nella settimana/accordo, contiamo solo il lavorato effettivo o gestiamo a parte
+// Se le ferie sono "già comprese" (scooterEnabled), non aggiungiamo le ore di ferie al totale 
+// perché fanno già parte del monte ore base settimanale (le 24h concordate).
+if(r.scooterEnabled) return work; 
 return work + holiday;
 }
 
@@ -289,7 +291,6 @@ return sign+h+"h"+(m?" "+String(m).padStart(2,"0")+"m":"");
 function balanceClass(b){return b>0.001?"positive":b< -0.001?"negative":"neutral"}
 function isWeekend(key){const d=parseDate(key).getDay();return d===0||d===6}
 
-// Funzione per trovare il lunedì e la domenica della settimana di una certa data (chiave YYYY-MM-DD)
 function getWeekRange(dateKey){
 const d=parseDate(dateKey);
 const day=d.getDay();
@@ -300,7 +301,6 @@ sunday.setDate(monday.getDate()+6);
 return {start:localDateKey(monday), end:localDateKey(sunday)};
 }
 
-// Calcola le ore totali fatte in una specifica settimana e restituisce il saldo rispetto a 24 ore
 function getWeeklyBalance(dateKey){
 const range=getWeekRange(dateKey);
 let current=parseDate(range.start);
@@ -319,7 +319,7 @@ return totalHours - WEEKLY_EXPECTED_HOURS;
 
 function monthKeys(y,m){
 const last=new Date(y,m+1,0).getDate();
-return Array.log ? Array.from({length:last},(_,i)=>`${y}-${String(m+1).padStart(2,"0")}-${String(i+1).padStart(2,"0")}`) : Array.from({length:last},(_,i)=>`${y}-${String(m+1).padStart(2,"0")}-${String(i+1).padStart(2,"0")}`);
+return Array.from({length:last},(_,i)=>`${y}-${String(m+1).padStart(2,"0")}-${String(i+1).padStart(2,"0")}`);
 }
 function monthRecords(y,m){return monthKeys(y,m).filter(k=>records[k]&&hasEntry(records[k])).map(k=>({key:k,record:records[k]}))}
 
@@ -381,7 +381,6 @@ function renderSummary(){
 const t=monthTotals(shownYear,shownMonth);
 $("totalCombined").textContent=hoursText(t.combined);
 
-// Calcola il saldo della settimana relativa alla data selezionata
 const weeklyBal=getWeeklyBalance(selectedDate);
 $("weeklyBalance").textContent=signedHoursText(weeklyBal);
 $("weeklyBalance").className="stat-value "+balanceClass(weeklyBal);
