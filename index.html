@@ -1,4 +1,3 @@
-
 <!DOCTYPE html>
 <html lang="it">
 <head>
@@ -63,11 +62,11 @@ input:focus,select:focus,textarea:focus{outline:2px solid #ff8a2755;border-color
 .scooter-box{margin-top:12px;padding:12px;border:1px solid #52617c;border-radius:11px;background:#172237}
 .scooter-box .checkline{font-size:14px}
 .scooter-box input{accent-color:var(--orange)}
-.preview{margin-top:16px;padding:15px;background:#0e1627;border:1px solid var(--border);border-radius:13px;display:grid;grid-template-columns:repeat(3,minmax(0,1fr));gap:10px}
+.preview{margin-top:16px;padding:15px;background:#0e1627;border:1px solid var(--border);border-radius:13px;display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:10px}
 .stat-label{font-size:11px;color:var(--muted);margin-bottom:6px}
 .stat-value{font-size:20px;font-weight:900;overflow-wrap:anywhere}
 .actions{display:flex;gap:9px;flex-wrap:wrap;margin-top:17px}
-.summary{display:grid;grid-template-columns:repeat(4,minmax(0,1fr));gap:10px}
+.summary{display:grid;grid-template-columns:repeat(3,minmax(0,1fr));gap:10px}
 .summary-card{padding:14px;background:#101829;border:1px solid var(--border);border-radius:13px}
 .summary-card .stat-value{font-size:21px}
 .table-wrap{overflow-x:auto}
@@ -82,8 +81,8 @@ header{padding:19px 15px}h1{font-size:22px}.container{padding:15px 10px 30px}
 .panel{padding:14px;border-radius:15px}.calendar{gap:4px}
 .day{min-height:66px;padding:7px 2px;border-radius:8px}
 .day .hours,.day .balance{font-size:9px}.weekday{font-size:10px}
-.grid{gap:10px}.summary{grid-template-columns:repeat(2,minmax(0,1fr))}
-.preview{grid-template-columns:repeat(3,minmax(0,1fr));gap:7px}
+.grid{gap:10px}.summary{grid-template-columns:repeat(1,minmax(0,1fr))}
+.preview{grid-template-columns:repeat(2,minmax(0,1fr));gap:7px}
 .preview .stat-value{font-size:17px}.stat-value{font-size:19px}
 .monthbar h2{font-size:17px}.monthbar .btn{padding:9px 11px}
 }
@@ -94,7 +93,7 @@ header{background:white!important;color:#111!important;border:0;padding:0 0 12px
 .container{padding:0;max-width:none}
 .panel{background:white!important;color:#111!important;border:0;padding:0;margin:0 0 15px}
 .panel h2{color:#111!important}
-.summary{grid-template-columns:repeat(4,minmax(0,1fr))}
+.summary{grid-template-columns:repeat(3,minmax(0,1fr))}
 .summary-card{background:white!important;border:1px solid #ccc;color:#111!important}
 .stat-label,.subtitle{color:#555!important}
 .stat-value{color:#111!important;font-size:17px}
@@ -116,7 +115,7 @@ th{color:#333!important}
 <div class="header-inner">
 <div class="brand">
 <div class="logo">⏱</div>
-<div><h1>ORE LAVORO</h1><div class="subtitle">Calendario, ferie e saldo ore mensile</div></div>
+<div><h1>ORE LAVORO</h1><div class="subtitle">Calendario, ferie e saldo ore settimanale</div></div>
 </div>
 </div>
 </header>
@@ -162,14 +161,14 @@ th{color:#333!important}
 <div class="field">
 <label for="holidayHours">Ore di ferie</label>
 <input id="holidayHours" type="number" min="0.25" max="24" step="0.25" value="5">
-<div class="hint">Le ferie sono preimpostate a 5 ore, ma puoi modificarle.</div>
+<div class="hint">Inserisci le ore di ferie per questa giornata.</div>
 </div>
 <div class="scooter-box">
 <label class="checkline" for="scooterEnabled">
 <input type="checkbox" id="scooterEnabled">
 <span>🛵 Ferie settimanali già comprese</span>
 </label>
-<div class="hint" style="margin-top:7px">Se selezionata, le ferie non vengono sottratte ulteriormente dal saldo. Nel PDF questa giornata apparirà soltanto come ASSENTE.</div>
+<div class="hint" style="margin-top:7px">Se selezionata, le ferie non vengono calcolate come extra rispetto al monte ore. Nel PDF questa giornata apparirà soltanto come ASSENTE.</div>
 </div>
 </div>
 </div>
@@ -177,9 +176,8 @@ th{color:#333!important}
 <div class="preview">
 <div><div class="stat-label">Ore lavorate</div><div class="stat-value" id="previewWork">0h</div></div>
 <div><div class="stat-label">Ore ferie</div><div class="stat-value" id="previewHoliday">0h</div></div>
-<div><div class="stat-label">Saldo giornata</div><div class="stat-value neutral" id="previewBalance">—</div></div>
 </div>
-<div class="hint" style="margin-top:10px">Obiettivo: 5 ore lavorative al giorno. Il saldo viene aggiornato automaticamente.</div>
+<div class="hint" style="margin-top:10px">Il saldo viene calcolato automaticamente in base all'obiettivo di **24 ore settimanali**.</div>
 <div class="actions">
 <button class="btn-primary" type="submit">Salva giornata</button>
 <button class="btn" type="button" id="clearForm">Svuota campi</button>
@@ -189,14 +187,13 @@ th{color:#333!important}
 </section>
 
 <section class="panel">
-<h2>Riepilogo mensile</h2>
+<h2>Riepilogo settimanale e mensile</h2>
 <div class="summary">
-<div class="summary-card"><div class="stat-label">Ore lavorate</div><div class="stat-value" id="totalWork">0h</div></div>
-<div class="summary-card"><div class="stat-label">Ore ferie</div><div class="stat-value" id="totalHoliday">0h</div></div>
-<div class="summary-card"><div class="stat-label">Ore complessive</div><div class="stat-value" id="totalCombined">0h</div></div>
-<div class="summary-card"><div class="stat-label">Saldo mensile</div><div class="stat-value neutral" id="totalBalance">0h</div></div>
+<div class="summary-card"><div class="stat-label">Ore totali (Lavoro + Ferie)</div><div class="stat-value" id="totalCombined">0h</div></div>
+<div class="summary-card"><div class="stat-label">Obiettivo settimanale</div><div class="stat-value">24h</div></div>
+<div class="summary-card"><div class="stat-label">Saldo settimanale corrente</div><div class="stat-value neutral" id="weeklyBalance">0h</div></div>
 </div>
-<div class="hint" style="margin-top:12px">Il saldo mensile somma i saldi delle giornate registrate. Le giornate senza inserimenti non vengono conteggiate.</div>
+<div class="hint" style="margin-top:12px">Il saldo confronta il totale delle ore fatte nella settimana corrente (da lunedì a domenica) rispetto all'obiettivo di 24 ore.</div>
 <div class="actions no-print"><button class="btn-primary" type="button" id="exportPdf">Esporta PDF mensile</button></div>
 </section>
 
@@ -209,7 +206,7 @@ th{color:#333!important}
 <script>
 "use strict";
 const STORAGE_KEY="oreLavoroRecords";
-const DAILY_EXPECTED_HOURS=5;
+const WEEKLY_EXPECTED_HOURS=24;
 const $=id=>document.getElementById(id);
 let records={};
 let selectedDate=localDateKey(new Date());
@@ -267,12 +264,16 @@ return Math.max(0,minutes-Math.round(Math.max(0,num(br))*60))/60;
 }
 function getRecordHours(r){return r?calculateWork(r.startTime,r.endTime,r.breakHours):0}
 function getHolidayHours(r){return r&&r.holidayEnabled?Math.max(0,num(r.holidayHours)):0}
-function getBalance(r){
+
+// Calcola le ore totali (lavoro + ferie se non già comprese) per una determinata data
+function getEffectiveHours(r){
 if(!r)return 0;
-const work=getRecordHours(r),holiday=getHolidayHours(r);
-if(r.scooterEnabled)return work+holiday-DAILY_EXPECTED_HOURS;
-return work-DAILY_EXPECTED_HOURS-holiday;
+const work=getRecordHours(r);
+const holiday=getHolidayHours(r);
+if(r.scooterEnabled) return work; // se le ferie sono già comprese nella settimana/accordo, contiamo solo il lavorato effettivo o gestiamo a parte
+return work + holiday;
 }
+
 function hasWorkTimes(r){return !!(r&&r.startTime&&r.endTime)}
 function hasEntry(r){return !!(r&&(hasWorkTimes(r)||getHolidayHours(r)>0))}
 function hoursText(hours){
@@ -287,17 +288,46 @@ return sign+h+"h"+(m?" "+String(m).padStart(2,"0")+"m":"");
 }
 function balanceClass(b){return b>0.001?"positive":b< -0.001?"negative":"neutral"}
 function isWeekend(key){const d=parseDate(key).getDay();return d===0||d===6}
+
+// Funzione per trovare il lunedì e la domenica della settimana di una certa data (chiave YYYY-MM-DD)
+function getWeekRange(dateKey){
+const d=parseDate(dateKey);
+const day=d.getDay();
+const diffToMon=d.getDate()-day+(day===0?-6:1);
+const monday=new Date(d.setDate(diffToMon));
+const sunday=new Date(monday);
+sunday.setDate(monday.getDate()+6);
+return {start:localDateKey(monday), end:localDateKey(sunday)};
+}
+
+// Calcola le ore totali fatte in una specifica settimana e restituisce il saldo rispetto a 24 ore
+function getWeeklyBalance(dateKey){
+const range=getWeekRange(dateKey);
+let current=parseDate(range.start);
+let end=parseDate(range.end);
+let totalHours=0;
+
+while(current<=end){
+const k=localDateKey(current);
+if(records[k]){
+totalHours+=getEffectiveHours(records[k]);
+}
+current.setDate(current.getDate()+1);
+}
+return totalHours - WEEKLY_EXPECTED_HOURS;
+}
+
 function monthKeys(y,m){
 const last=new Date(y,m+1,0).getDate();
-return Array.from({length:last},(_,i)=>`${y}-${String(m+1).padStart(2,"0")}-${String(i+1).padStart(2,"0")}`);
+return Array.log ? Array.from({length:last},(_,i)=>`${y}-${String(m+1).padStart(2,"0")}-${String(i+1).padStart(2,"0")}`) : Array.from({length:last},(_,i)=>`${y}-${String(m+1).padStart(2,"0")}-${String(i+1).padStart(2,"0")}`);
 }
 function monthRecords(y,m){return monthKeys(y,m).filter(k=>records[k]&&hasEntry(records[k])).map(k=>({key:k,record:records[k]}))}
+
 function monthTotals(y,m){
 const entries=monthRecords(y,m);
 const work=entries.reduce((s,x)=>s+getRecordHours(x.record),0);
 const holiday=entries.reduce((s,x)=>s+getHolidayHours(x.record),0);
-const balance=entries.reduce((s,x)=>s+getBalance(x.record),0);
-return {work,holiday,combined:work+holiday,balance,count:entries.length};
+return {work,holiday,combined:work+holiday,count:entries.length};
 }
 
 function renderCalendar(){
@@ -318,8 +348,7 @@ if(entry&&work>0)day.classList.add("has-work");
 if(entry&&holiday>0)day.classList.add("has-holiday");
 if(!entry&&!isWeekend(key)&&key<today)day.classList.add("missing");
 const hrs=entry?`${work?hoursText(work):""}${work&&holiday?" · ":""}${holiday?hoursText(holiday)+" ferie":""}`:(isWeekend(key)?"Weekend":"—");
-const balance=entry?signedHoursText(getBalance(r)):"";
-day.innerHTML=`<span class="num">${Number(key.slice(-2))}</span><span class="hours">${escapeHTML(hrs)}</span>${entry?`<span class="balance ${balanceClass(getBalance(r))}">${escapeHTML(balance)}</span>`:""}`;
+day.innerHTML=`<span class="num">${Number(key.slice(-2))}</span><span class="hours">${escapeHTML(hrs)}</span>`;
 day.addEventListener("click",()=>{selectedDate=key;shownYear=parseDate(key).getFullYear();shownMonth=parseDate(key).getMonth();renderAll()});
 cal.appendChild(day);
 }
@@ -344,38 +373,33 @@ updatePreview();
 function updatePreview(){
 const work=calculateWork($("startTime").value,$("endTime").value,$("breakHours").value);
 const holiday=$("holidayEnabled").checked?Math.max(0,num($("holidayHours").value)):0;
-const scooter=$("holidayEnabled").checked&&$("scooterEnabled").checked;
-const hasWork=!!($("startTime").value&&$("endTime").value);
-const hasEntry=hasWork||holiday>0;
-const balance=hasWork?work-DAILY_EXPECTED_HOURS+(scooter?holiday:-holiday):scooter?holiday-DAILY_EXPECTED_HOURS:-DAILY_EXPECTED_HOURS-holiday;
 $("workPreview").textContent=hoursText(work);
 $("previewWork").textContent=hoursText(work);
 $("previewHoliday").textContent=hoursText(holiday);
-$("previewBalance").textContent=hasEntry?signedHoursText(balance):"—";
-$("previewBalance").className="stat-value "+(hasEntry?balanceClass(balance):"neutral");
 }
 function renderSummary(){
 const t=monthTotals(shownYear,shownMonth);
-$("totalWork").textContent=hoursText(t.work);
-$("totalHoliday").textContent=hoursText(t.holiday);
 $("totalCombined").textContent=hoursText(t.combined);
-$("totalBalance").textContent=signedHoursText(t.balance);
-$("totalBalance").className="stat-value "+balanceClass(t.balance);
+
+// Calcola il saldo della settimana relativa alla data selezionata
+const weeklyBal=getWeeklyBalance(selectedDate);
+$("weeklyBalance").textContent=signedHoursText(weeklyBal);
+$("weeklyBalance").className="stat-value "+balanceClass(weeklyBal);
 }
 function renderHistory(){
 const entries=monthRecords(shownYear,shownMonth),history=$("history");
 if(!entries.length){history.innerHTML='<div class="empty">Non hai ancora registrato giornate in questo mese.</div>';return}
 const rows=entries.map(({key,record:r})=>{
-const b=getBalance(r);
+const work=getRecordHours(r);
+const hol=getHolidayHours(r);
 return `<tr>
 <td>${escapeHTML(formatDate(key))}${r.scooterEnabled?' <span title="Ferie settimanali comprese">🛵</span>':""}</td>
 <td>${escapeHTML(r.startTime||"—")}</td><td>${escapeHTML(r.endTime||"—")}</td>
-<td>${escapeHTML(hoursText(r.breakHours||0))}</td><td>${escapeHTML(hoursText(getRecordHours(r)))}</td>
-<td>${escapeHTML(hoursText(getHolidayHours(r)))}</td>
-<td class="${balanceClass(b)}"><strong>${escapeHTML(signedHoursText(b))}</strong></td>
+<td>${escapeHTML(hoursText(r.breakHours||0))}</td><td>${escapeHTML(hoursText(work))}</td>
+<td>${escapeHTML(hoursText(hol))}</td>
 <td><button class="btn btn-small" data-edit="${key}">Apri</button></td></tr>`;
 }).join("");
-history.innerHTML=`<div class="table-wrap"><table><thead><tr><th>Data</th><th>Inizio</th><th>Fine</th><th>Pausa</th><th>Lavorate</th><th>Ferie</th><th>Saldo</th><th></th></tr></thead><tbody>${rows}</tbody></table></div>`;
+history.innerHTML=`<div class="table-wrap"><table><thead><tr><th>Data</th><th>Inizio</th><th>Fine</th><th>Pausa</th><th>Lavorate</th><th>Ferie</th><th></th></tr></thead><tbody>${rows}</tbody></table></div>`;
 history.querySelectorAll("[data-edit]").forEach(b=>b.addEventListener("click",()=>{
 selectedDate=b.dataset.edit;renderAll();document.querySelector(".editor").scrollIntoView({behavior:"smooth",block:"start"});
 }));
@@ -411,22 +435,21 @@ delete records[selectedDate];persist();renderAll();
 function preparePdf(){
 const t=monthTotals(shownYear,shownMonth);
 $("pdfTitle").textContent=`Riepilogo ore - ${monthName(shownYear,shownMonth)}`;
-$("pdfSubtitle").textContent=`Generato il ${new Date().toLocaleDateString("it-IT")}. Saldo rispetto a ${DAILY_EXPECTED_HOURS} ore giornaliere previste.`;
+$("pdfSubtitle").textContent=`Generato il ${new Date().toLocaleDateString("it-IT")}. Obiettivo: 24 ore settimanali.`;
 $("pdfTotals").innerHTML=`<div class="summary">
 <div class="summary-card"><div class="stat-label">Ore lavorate</div><div class="stat-value">${escapeHTML(hoursText(t.work))}</div></div>
 <div class="summary-card"><div class="stat-label">Ore ferie</div><div class="stat-value">${escapeHTML(hoursText(t.holiday))}</div></div>
-<div class="summary-card"><div class="stat-label">Ore complessive</div><div class="stat-value">${escapeHTML(hoursText(t.combined))}</div></div>
-<div class="summary-card"><div class="stat-label">Saldo mensile</div><div class="stat-value">${escapeHTML(signedHoursText(t.balance))}</div></div></div>`;
+<div class="summary-card"><div class="summary-card"><div class="stat-label">Ore complessive</div><div class="stat-value">${escapeHTML(hoursText(t.combined))}</div></div></div></div>`;
 const entries=monthRecords(shownYear,shownMonth);
 const rows=entries.map(({key,record:r})=>{
 if(r.scooterEnabled){
-return `<tr><td>${escapeHTML(formatDate(key))}</td><td colspan="6" style="text-align:center;font-weight:bold">ASSENTE</td></tr>`;
+return `<tr><td>${escapeHTML(formatDate(key))}</td><td colspan="5" style="text-align:center;font-weight:bold">ASSENTE</td></tr>`;
 }
-return `<tr><td>${escapeHTML(formatDate(key))}</td><td>${escapeHTML(r.startTime||"—")}</td><td>${escapeHTML(r.endTime||"—")}</td><td>${escapeHTML(hoursText(r.breakHours||0))}</td><td>${escapeHTML(hoursText(getRecordHours(r)))}</td><td>${escapeHTML(hoursText(getHolidayHours(r)))}</td><td>${escapeHTML(signedHoursText(getBalance(r)))}</td></tr>`;
+return `<tr><td>${escapeHTML(formatDate(key))}</td><td>${escapeHTML(r.startTime||"—")}</td><td>${escapeHTML(r.endTime||"—")}</td><td>${escapeHTML(hoursText(r.breakHours||0))}</td><td>${escapeHTML(hoursText(getRecordHours(r)))}</td><td>${escapeHTML(hoursText(getHolidayHours(r)))}</td></tr>`;
 }).join("");
 $("pdfTable").innerHTML=`<h2 style="font-size:15px;margin:0 0 8px">Dettaglio giornate</h2>
-${entries.length?`<table><thead><tr><th>Data</th><th>Inizio</th><th>Fine</th><th>Pausa</th><th>Ore lavorate</th><th>Ore ferie</th><th>Saldo</th></tr></thead><tbody>${rows}</tbody>
-<tfoot><tr><th colspan="4">TOTALE MESE</th><th>${escapeHTML(hoursText(t.work))}</th><th>${escapeHTML(hoursText(t.holiday))}</th><th>${escapeHTML(signedHoursText(t.balance))}</th></tr></tfoot></table>`:"<p>Nessuna giornata registrata per questo mese.</p>"}`;
+${entries.length?`<table><thead><tr><th>Data</th><th>Inizio</th><th>Fine</th><th>Pausa</th><th>Ore lavorate</th><th>Ore ferie</th></tr></thead><tbody>${rows}</tbody>
+<tfoot><tr><th colspan="4">TOTALE MESE</th><th>${escapeHTML(hoursText(t.work))}</th><th>${escapeHTML(hoursText(t.holiday))}</th></tr></tfoot></table>`:"<p>Nessuna giornata registrata per questo mese.</p>"}`;
 window.print();
 }
 
