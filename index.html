@@ -112,7 +112,7 @@ th{color:#333!important}
 <div class="header-inner">
 <div class="brand">
 <div class="logo">⏱</div>
-<div><h1>ORE LAVORO</h1><div class="subtitle">Calendario, ferie e saldo ore settimanale (24h)</div></div>
+<div><h1>ORE LAVORO</h1><div class="subtitle">Calendario, ferie e saldo ore (24h/settimana)</div></div>
 </div>
 </div>
 </header>
@@ -164,10 +164,10 @@ th{color:#333!important}
 </div>
 
 <div class="preview">
-<div><div class="stat-label">Ore lavorate</div><div class="stat-value" id="previewWork">0h</div></div>
+<div><div class="stat-label">Ore reali lavorate</div><div class="stat-value" id="previewWork">0h</div></div>
 <div><div class="stat-label">Ore ferie</div><div class="stat-value" id="previewHoliday">0h</div></div>
 </div>
-<div class="hint" style="margin-top:10px">Il saldo viene calcolato automaticamente in base all'obiettivo contrattuale di **24 ore settimanali**.</div>
+<div class="hint" style="margin-top:10px">Il saldo confronta le <strong>sole ore reali lavorate</strong> con le <strong>24 ore teoriche settimanali</strong> (le ferie sono conteggiate separatamente).</div>
 <div class="actions">
 <button class="btn-primary" type="submit">Salva giornata</button>
 <button class="btn" type="button" id="clearForm">Svuota campi</button>
@@ -177,13 +177,17 @@ th{color:#333!important}
 </section>
 
 <section class="panel">
-<h2>Riepilogo settimanale e mensile</h2>
+<h2>Riepilogo mensile</h2>
 <div class="summary">
-<div class="summary-card"><div class="stat-label">Ore totali (Lavoro + Ferie)</div><div class="stat-value" id="totalCombined">0h</div></div>
-<div class="summary-card"><div class="stat-label">Ore teoriche (Obiettivo)</div><div class="stat-value">24h</div></div>
-<div class="summary-card"><div class="stat-label">Saldo settimanale corrente</div><div class="stat-value neutral" id="weeklyBalance">0h</div></div>
+<div class="summary-card"><div class="stat-label">Ore reali lavorate</div><div class="stat-value" id="totalWork">0h</div></div>
+<div class="summary-card"><div class="stat-label">Ore teoriche (24h × sett.)</div><div class="stat-value" id="totalExpected">0h</div></div>
+<div class="summary-card"><div class="stat-label">Saldo ore reali</div><div class="stat-value neutral" id="monthBalance">0h</div></div>
 </div>
-<div class="hint" style="margin-top:12px">Il saldo confronta il totale delle ore reali (lavorate + ferie) nella settimana corrente rispetto all'obiettivo teorico di 24 ore.</div>
+<div class="summary" style="margin-top:10px;grid-template-columns:repeat(2,minmax(0,1fr))">
+<div class="summary-card"><div class="stat-label">Totale ore ferie</div><div class="stat-value" style="color:var(--blue)" id="totalHoliday">0h</div></div>
+<div class="summary-card"><div class="stat-label">Saldo settimana selezionata</div><div class="stat-value neutral" id="weeklyBalance">0h</div></div>
+</div>
+<div class="hint" style="margin-top:12px">Il <strong>Saldo ore reali</strong> calcola la differenza tra le ore effettivamente lavorate nel mese e le ore teoriche (24h per ogni settimana in cui hai registrato giornate).</div>
 <div class="actions no-print"><button class="btn-primary" type="button" id="exportPdf">Esporta PDF mensile</button></div>
 </section>
 
@@ -259,7 +263,6 @@ return Math.max(0,minutes-Math.round(Math.max(0,num(br))*60))/60;
 
 function getRecordHours(r){return r?calculateWork(r.startTime,r.endTime,r.breakHours):0}
 function getHolidayHours(r){return r&&r.holidayEnabled?Math.max(0,num(r.holidayHours)):0}
-function getEffectiveHours(r){if(!r)return 0;return getRecordHours(r)+getHolidayHours(r)}
 
 function hasWorkTimes(r){return !!(r&&r.startTime&&r.endTime)}
 function hasEntry(r){return !!(r&&(hasWorkTimes(r)||getHolidayHours(r)>0))}
@@ -289,20 +292,21 @@ sunday.setDate(monday.getDate()+6);
 return {start:localDateKey(monday), end:localDateKey(sunday)};
 }
 
+// Saldo della singola settimana: confronta SOLO le ore reali lavorate con le 24h teoriche
 function getWeeklyBalance(dateKey){
 const range=getWeekRange(dateKey);
 let current=parseDate(range.start);
 let end=parseDate(range.end);
-let totalHours=0;
+let realWorkHours=0;
 
 while(current<=end){
 const k=localDateKey(current);
 if(records[k]){
-  totalHours += getEffectiveHours(records[k]);
+  realWorkHours += getRecordHours(records[k]);
 }
 current.setDate(current.getDate()+1);
 }
-return totalHours - WEEKLY_EXPECTED_HOURS;
+return realWorkHours - WEEKLY_EXPECTED_HOURS;
 }
 
 function monthKeys(y,m){
@@ -316,7 +320,13 @@ function monthTotals(y,m){
 const entries=monthRecords(y,m);
 const work=entries.reduce((s,x)=>s+getRecordHours(x.record),0);
 const holiday=entries.reduce((s,x)=>s+getHolidayHours(x.record),0);
-return {work,holiday,combined:work+holiday,count:entries.length};
+
+// Conta quante settimane distinte hanno almeno una giornata registrata nel mese
+const weeks=new Set(entries.map(x=>getWeekRange(x.key).start));
+const expected=weeks.size*WEEKLY_EXPECTED_HOURS;
+const balance=work-expected;
+
+return {work,holiday,expected,balance,count:entries.length};
 }
 
 function renderCalendar(){
@@ -370,7 +380,13 @@ $("previewHoliday").textContent=hoursText(holiday);
 
 function renderSummary(){
 const t=monthTotals(shownYear,shownMonth);
-$("totalCombined").textContent=hoursText(t.combined);
+$("totalWork").textContent=hoursText(t.work);
+$("totalExpected").textContent=hoursText(t.expected);
+$("totalHoliday").textContent=hoursText(t.holiday);
+
+$("monthBalance").textContent=signedHoursText(t.balance);
+$("monthBalance").className="stat-value "+balanceClass(t.balance);
+
 const weeklyBal=getWeeklyBalance(selectedDate);
 $("weeklyBalance").textContent=signedHoursText(weeklyBal);
 $("weeklyBalance").className="stat-value "+balanceClass(weeklyBal);
@@ -389,7 +405,7 @@ return `<tr>
 <td>${escapeHTML(hoursText(hol))}</td>
 <td><button class="btn btn-small" data-edit="${key}">Apri</button></td></tr>`;
 }).join("");
-history.innerHTML=`<div class="table-wrap"><table><thead><tr><th>Data</th><th>Inizio</th><th>Fine</th><th>Pausa</th><th>Lavorate</th><th>Ferie</th><th></th></tr></thead><tbody>${rows}</tbody></table></div>`;
+history.innerHTML=`<div class="table-wrap"><table><thead><tr><th>Data</th><th>Inizio</th><th>Fine</th><th>Pausa</th><th>Ore reali</th><th>Ferie</th><th></th></tr></thead><tbody>${rows}</tbody></table></div>`;
 history.querySelectorAll("[data-edit]").forEach(b=>b.addEventListener("click",()=>{
 selectedDate=b.dataset.edit;renderAll();document.querySelector(".editor").scrollIntoView({behavior:"smooth",block:"start"});
 }));
@@ -429,17 +445,18 @@ delete records[selectedDate];persist();renderAll();
 function preparePdf(){
 const t=monthTotals(shownYear,shownMonth);
 $("pdfTitle").textContent=`Riepilogo ore - ${monthName(shownYear,shownMonth)}`;
-$("pdfSubtitle").textContent=`Generato il ${new Date().toLocaleDateString("it-IT")}. Obiettivo: 24 ore settimanali.`;
-$("pdfTotals").innerHTML=`<div class="summary">
-<div class="summary-card"><div class="stat-label">Ore lavorate</div><div class="stat-value">${escapeHTML(hoursText(t.work))}</div></div>
+$("pdfSubtitle").textContent=`Generato il ${new Date().toLocaleDateString("it-IT")}. Contratto: 24 ore teoriche settimanali.`;
+$("pdfTotals").innerHTML=`<div class="summary" style="grid-template-columns:repeat(4,minmax(0,1fr))">
+<div class="summary-card"><div class="stat-label">Ore reali</div><div class="stat-value">${escapeHTML(hoursText(t.work))}</div></div>
+<div class="summary-card"><div class="stat-label">Ore teoriche</div><div class="stat-value">${escapeHTML(hoursText(t.expected))}</div></div>
 <div class="summary-card"><div class="stat-label">Ore ferie</div><div class="stat-value">${escapeHTML(hoursText(t.holiday))}</div></div>
-<div class="summary-card"><div class="summary-card"><div class="stat-label">Ore complessive</div><div class="stat-value">${escapeHTML(hoursText(t.combined))}</div></div></div></div>`;
+<div class="summary-card"><div class="stat-label">Saldo ore reali</div><div class="stat-value">${escapeHTML(signedHoursText(t.balance))}</div></div></div>`;
 const entries=monthRecords(shownYear,shownMonth);
 const rows=entries.map(({key,record:r})=>{
 return `<tr><td>${escapeHTML(formatDate(key))}</td><td>${escapeHTML(r.startTime||"—")}</td><td>${escapeHTML(r.endTime||"—")}</td><td>${escapeHTML(hoursText(r.breakHours||0))}</td><td>${escapeHTML(hoursText(getRecordHours(r)))}</td><td>${escapeHTML(hoursText(getHolidayHours(r)))}</td></tr>`;
 }).join("");
 $("pdfTable").innerHTML=`<h2 style="font-size:15px;margin:0 0 8px">Dettaglio giornate</h2>
-${entries.length?`<table><thead><tr><th>Data</th><th>Inizio</th><th>Fine</th><th>Pausa</th><th>Ore lavorate</th><th>Ore ferie</th></tr></thead><tbody>${rows}</tbody>
+${entries.length?`<table><thead><tr><th>Data</th><th>Inizio</th><th>Fine</th><th>Pausa</th><th>Ore reali</th><th>Ore ferie</th></tr></thead><tbody>${rows}</tbody>
 <tfoot><tr><th colspan="4">TOTALE MESE</th><th>${escapeHTML(hoursText(t.work))}</th><th>${escapeHTML(hoursText(t.holiday))}</th></tr></tfoot></table>`:"<p>Nessuna giornata registrata per questo mese.</p>"}`;
 window.print();
 }
