@@ -59,9 +59,6 @@ input:focus,select:focus,textarea:focus{outline:2px solid #ff8a2755;border-color
 .checkline input{width:20px;height:20px;accent-color:var(--blue);flex-shrink:0}
 .holiday-fields{margin-top:14px}
 .holiday-fields[hidden]{display:none}
-.scooter-box{margin-top:12px;padding:12px;border:1px solid #52617c;border-radius:11px;background:#172237}
-.scooter-box .checkline{font-size:14px}
-.scooter-box input{accent-color:var(--orange)}
 .preview{margin-top:16px;padding:15px;background:#0e1627;border:1px solid var(--border);border-radius:13px;display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:10px}
 .stat-label{font-size:11px;color:var(--muted);margin-bottom:6px}
 .stat-value{font-size:20px;font-weight:900;overflow-wrap:anywhere}
@@ -115,7 +112,7 @@ th{color:#333!important}
 <div class="header-inner">
 <div class="brand">
 <div class="logo">⏱</div>
-<div><h1>ORE LAVORO</h1><div class="subtitle">Calendario, ferie e saldo ore settimanale</div></div>
+<div><h1>ORE LAVORO</h1><div class="subtitle">Calendario, ferie e saldo ore settimanale (24h)</div></div>
 </div>
 </div>
 </header>
@@ -156,19 +153,12 @@ th{color:#333!important}
 
 <div class="holiday-box">
 <label class="checkline" for="holidayEnabled"><input type="checkbox" id="holidayEnabled"><span>Ferie</span></label>
-<div class="hint" style="margin-top:7px">Attiva la spunta quando vuoi registrare ferie.</div>
+<div class="hint" style="margin-top:7px">Attiva la spunta quando vuoi registrare delle ore di ferie.</div>
 <div class="holiday-fields" id="holidayFields" hidden>
 <div class="field">
 <label for="holidayHours">Ore di ferie</label>
 <input id="holidayHours" type="number" min="0.25" max="24" step="0.25" value="5">
 <div class="hint">Inserisci le ore di ferie per questa giornata.</div>
-</div>
-<div class="scooter-box">
-<label class="checkline" for="scooterEnabled">
-<input type="checkbox" id="scooterEnabled">
-<span>🛵 Ferie settimanali già comprese</span>
-</label>
-<div class="hint" style="margin-top:7px">Se selezionata, le ferie non vengono calcolate come extra rispetto al monte ore. Nel PDF questa giornata apparirà soltanto come ASSENTE.</div>
 </div>
 </div>
 </div>
@@ -177,7 +167,7 @@ th{color:#333!important}
 <div><div class="stat-label">Ore lavorate</div><div class="stat-value" id="previewWork">0h</div></div>
 <div><div class="stat-label">Ore ferie</div><div class="stat-value" id="previewHoliday">0h</div></div>
 </div>
-<div class="hint" style="margin-top:10px">Il saldo viene calcolato automaticamente in base all'obiettivo di **24 ore settimanali**.</div>
+<div class="hint" style="margin-top:10px">Il saldo viene calcolato automaticamente in base all'obiettivo contrattuale di **24 ore settimanali**.</div>
 <div class="actions">
 <button class="btn-primary" type="submit">Salva giornata</button>
 <button class="btn" type="button" id="clearForm">Svuota campi</button>
@@ -190,10 +180,10 @@ th{color:#333!important}
 <h2>Riepilogo settimanale e mensile</h2>
 <div class="summary">
 <div class="summary-card"><div class="stat-label">Ore totali (Lavoro + Ferie)</div><div class="stat-value" id="totalCombined">0h</div></div>
-<div class="summary-card"><div class="stat-label">Obiettivo settimanale</div><div class="stat-value">24h</div></div>
+<div class="summary-card"><div class="stat-label">Ore teoriche (Obiettivo)</div><div class="stat-value">24h</div></div>
 <div class="summary-card"><div class="stat-label">Saldo settimanale corrente</div><div class="stat-value neutral" id="weeklyBalance">0h</div></div>
 </div>
-<div class="hint" style="margin-top:12px">Il saldo confronta il totale delle ore fatte nella settimana corrente (da lunedì a domenica) rispetto all'obiettivo di 24 ore.</div>
+<div class="hint" style="margin-top:12px">Il saldo confronta il totale delle ore reali (lavorate + ferie) nella settimana corrente rispetto all'obiettivo teorico di 24 ore.</div>
 <div class="actions no-print"><button class="btn-primary" type="button" id="exportPdf">Esporta PDF mensile</button></div>
 </section>
 
@@ -230,8 +220,9 @@ const endTime=typeof r.endTime==="string"?r.endTime:"";
 const breakHours=Math.max(0,num(r.breakHours));
 const holidayEnabled=r.holidayEnabled===true||(r.holidayEnabled===undefined&&num(r.holidayHours)>0);
 const holidayHours=holidayEnabled?Math.max(0,num(r.holidayHours)):0;
-return {startTime,endTime,breakHours,holidayEnabled,holidayHours,scooterEnabled:r.scooterEnabled===true};
+return {startTime,endTime,breakHours,holidayEnabled,holidayHours};
 }
+
 function loadRecords(){
 try{
 const saved=localStorage.getItem(STORAGE_KEY);
@@ -246,52 +237,45 @@ if(/^\d{4}-\d{2}-\d{2}$/.test(key))records[key]=normalizeRecord(value);
 }
 }catch(e){console.error("Errore nel caricamento dei dati",e);records={}}
 }
+
 function persist(){
 try{localStorage.setItem(STORAGE_KEY,JSON.stringify(records))}
 catch(e){alert("Non è stato possibile salvare i dati nel browser.");console.error(e)}
 }
+
 function timeToMinutes(value){
 if(!value||!/^\d{2}:\d{2}$/.test(value))return null;
 const [h,m]=value.split(":").map(Number);
 if(h>23||m>59)return null;
 return h*60+m;
 }
+
 function calculateWork(start,end,br){
 const a=timeToMinutes(start),b=timeToMinutes(end);
 if(a===null||b===null)return 0;
 let minutes=b-a;if(minutes<0)minutes+=1440;
 return Math.max(0,minutes-Math.round(Math.max(0,num(br))*60))/60;
 }
+
 function getRecordHours(r){return r?calculateWork(r.startTime,r.endTime,r.breakHours):0}
 function getHolidayHours(r){return r&&r.holidayEnabled?Math.max(0,num(r.holidayHours)):0}
-
-// CORRETTO: Se scooterEnabled è attivo, consideriamo le ore di ferie come "già comprese nel monte ore", 
-// quindi nel conteggio delle ore fatte nella settimana contiamo il valore delle ferie stesse 
-// (equivalente a dire che quella giornata copre interamente la sua quota senza creare extra o buchi negativi doppi).
-function getEffectiveHours(r){
-if(!r)return 0;
-const work=getRecordHours(r);
-const holiday=getHolidayHours(r);
-if(r.scooterEnabled){
-  // Se c'è lo scooter, la giornata contribuisce per il suo valore di ferie (es. 5h) 
-  // oppure per il lavorato se presente, evitando di sottrarle due volte.
-  return work + holiday;
-}
-return work + holiday;
-}
+function getEffectiveHours(r){if(!r)return 0;return getRecordHours(r)+getHolidayHours(r)}
 
 function hasWorkTimes(r){return !!(r&&r.startTime&&r.endTime)}
 function hasEntry(r){return !!(r&&(hasWorkTimes(r)||getHolidayHours(r)>0))}
+
 function hoursText(hours){
 const t=Math.round(Math.max(0,num(hours))*60),h=Math.floor(t/60),m=t%60;
 return m?`${h}h ${String(m).padStart(2,"0")}m`:`${h}h`;
 }
+
 function signedHoursText(hours){
 const t=Math.round(num(hours)*60);
 if(!t)return "0h";
 const sign=t>0?"+":"−",a=Math.abs(t),h=Math.floor(a/60),m=a%60;
 return sign+h+"h"+(m?" "+String(m).padStart(2,"0")+"m":"");
 }
+
 function balanceClass(b){return b>0.001?"positive":b< -0.001?"negative":"neutral"}
 function isWeekend(key){const d=parseDate(key).getDay();return d===0||d===6}
 
@@ -310,32 +294,22 @@ const range=getWeekRange(dateKey);
 let current=parseDate(range.start);
 let end=parseDate(range.end);
 let totalHours=0;
-let expectedTotal=WEEKLY_EXPECTED_HOURS;
 
 while(current<=end){
 const k=localDateKey(current);
 if(records[k]){
-  const r=records[k];
-  if(r.scooterEnabled){
-    // Se la giornata ha lo scooter, significa che le ore di ferie (es. 5h) sono già incluse 
-    // nel monte ore settimanale stabilito. Scaliamo l'obiettivo di quelle ore 
-    // oppure le contiamo nel totale in modo neutro.
-    const hol=getHolidayHours(r);
-    expectedTotal -= hol; // Riduciamo le 24 ore dell'obiettivo della giornata coperta da ferie comprese
-    totalHours += getRecordHours(r); // Eventuale lavoro extra fatto in quel giorno
-  }else{
-    totalHours += getEffectiveHours(r);
-  }
+  totalHours += getEffectiveHours(records[k]);
 }
 current.setDate(current.getDate()+1);
 }
-return totalHours - expectedTotal;
+return totalHours - WEEKLY_EXPECTED_HOURS;
 }
 
 function monthKeys(y,m){
 const last=new Date(y,m+1,0).getDate();
 return Array.from({length:last},(_,i)=>`${y}-${String(m+1).padStart(2,"0")}-${String(i+1).padStart(2,"0")}`);
 }
+
 function monthRecords(y,m){return monthKeys(y,m).filter(k=>records[k]&&hasEntry(records[k])).map(k=>({key:k,record:records[k]}))}
 
 function monthTotals(y,m){
@@ -354,6 +328,7 @@ const d=document.createElement("div");d.className="weekday";d.textContent=n;cal.
 const offset=(new Date(shownYear,shownMonth,1).getDay()+6)%7;
 for(let i=0;i<offset;i++)cal.appendChild(document.createElement("div"));
 const today=localDateKey(new Date());
+
 for(const key of monthKeys(shownYear,shownMonth)){
 const r=records[key],work=getRecordHours(r),holiday=getHolidayHours(r),entry=hasEntry(r);
 const day=document.createElement("button");day.type="button";day.className="day";
@@ -377,14 +352,14 @@ $("endTime").value=r?.endTime||"";
 $("breakHours").value=String(r?.breakHours??1);
 $("holidayEnabled").checked=!!r?.holidayEnabled;
 $("holidayHours").value=r?.holidayEnabled?String(r.holidayHours||5):"5";
-$("scooterEnabled").checked=!!r?.scooterEnabled;
 toggleHolidayFields();
 }
+
 function toggleHolidayFields(){
 $("holidayFields").hidden=!$("holidayEnabled").checked;
-if(!$("holidayEnabled").checked)$("scooterEnabled").checked=false;
 updatePreview();
 }
+
 function updatePreview(){
 const work=calculateWork($("startTime").value,$("endTime").value,$("breakHours").value);
 const holiday=$("holidayEnabled").checked?Math.max(0,num($("holidayHours").value)):0;
@@ -392,14 +367,15 @@ $("workPreview").textContent=hoursText(work);
 $("previewWork").textContent=hoursText(work);
 $("previewHoliday").textContent=hoursText(holiday);
 }
+
 function renderSummary(){
 const t=monthTotals(shownYear,shownMonth);
 $("totalCombined").textContent=hoursText(t.combined);
-
 const weeklyBal=getWeeklyBalance(selectedDate);
 $("weeklyBalance").textContent=signedHoursText(weeklyBal);
 $("weeklyBalance").className="stat-value "+balanceClass(weeklyBal);
 }
+
 function renderHistory(){
 const entries=monthRecords(shownYear,shownMonth),history=$("history");
 if(!entries.length){history.innerHTML='<div class="empty">Non hai ancora registrato giornate in questo mese.</div>';return}
@@ -407,7 +383,7 @@ const rows=entries.map(({key,record:r})=>{
 const work=getRecordHours(r);
 const hol=getHolidayHours(r);
 return `<tr>
-<td>${escapeHTML(formatDate(key))}${r.scooterEnabled?' <span title="Ferie settimanali comprese">🛵</span>':""}</td>
+<td>${escapeHTML(formatDate(key))}</td>
 <td>${escapeHTML(r.startTime||"—")}</td><td>${escapeHTML(r.endTime||"—")}</td>
 <td>${escapeHTML(hoursText(r.breakHours||0))}</td><td>${escapeHTML(hoursText(work))}</td>
 <td>${escapeHTML(hoursText(hol))}</td>
@@ -418,6 +394,7 @@ history.querySelectorAll("[data-edit]").forEach(b=>b.addEventListener("click",()
 selectedDate=b.dataset.edit;renderAll();document.querySelector(".editor").scrollIntoView({behavior:"smooth",block:"start"});
 }));
 }
+
 function renderAll(){renderCalendar();renderEditor();renderSummary();renderHistory()}
 
 function saveDay(event){
@@ -426,20 +403,23 @@ const startTime=$("startTime").value,endTime=$("endTime").value;
 const breakHours=num($("breakHours").value);
 const holidayEnabled=$("holidayEnabled").checked;
 const holidayHours=holidayEnabled?num($("holidayHours").value):0;
-const scooterEnabled=holidayEnabled&&$("scooterEnabled").checked;
+
 if(!!startTime!==!!endTime){alert("Inserisci sia l'ora di inizio sia quella di fine, oppure lascia entrambe vuote per registrare solo ferie.");return}
 if(holidayEnabled&&holidayHours<=0){alert("Inserisci ore di ferie maggiori di zero.");return}
 if(holidayEnabled&&holidayHours>24){alert("Le ore di ferie non possono superare 24.");return}
 if(!startTime&&!endTime&&!holidayEnabled){alert("Inserisci gli orari di lavoro oppure attiva Ferie.");return}
 if(startTime&&endTime&&calculateWork(startTime,endTime,breakHours)<=0&&!confirm("Le ore lavorate risultano pari a zero. Vuoi salvare comunque?"))return;
-records[selectedDate]=normalizeRecord({startTime,endTime,breakHours,holidayEnabled,holidayHours,scooterEnabled});
+
+records[selectedDate]=normalizeRecord({startTime,endTime,breakHours,holidayEnabled,holidayHours});
 persist();renderAll();alert("Giornata salvata correttamente.");
 }
+
 function clearForm(){
 $("startTime").value="";$("endTime").value="";$("breakHours").value="1";
-$("holidayEnabled").checked=false;$("holidayHours").value="5";$("scooterEnabled").checked=false;
+$("holidayEnabled").checked=false;$("holidayHours").value="5";
 toggleHolidayFields();
 }
+
 function deleteDay(){
 if(!records[selectedDate]){clearForm();return}
 if(!confirm("Vuoi eliminare tutti i dati di questa giornata?"))return;
@@ -456,9 +436,6 @@ $("pdfTotals").innerHTML=`<div class="summary">
 <div class="summary-card"><div class="summary-card"><div class="stat-label">Ore complessive</div><div class="stat-value">${escapeHTML(hoursText(t.combined))}</div></div></div></div>`;
 const entries=monthRecords(shownYear,shownMonth);
 const rows=entries.map(({key,record:r})=>{
-if(r.scooterEnabled){
-return `<tr><td>${escapeHTML(formatDate(key))}</td><td colspan="5" style="text-align:center;font-weight:bold">ASSENTE</td></tr>`;
-}
 return `<tr><td>${escapeHTML(formatDate(key))}</td><td>${escapeHTML(r.startTime||"—")}</td><td>${escapeHTML(r.endTime||"—")}</td><td>${escapeHTML(hoursText(r.breakHours||0))}</td><td>${escapeHTML(hoursText(getRecordHours(r)))}</td><td>${escapeHTML(hoursText(getHolidayHours(r)))}</td></tr>`;
 }).join("");
 $("pdfTable").innerHTML=`<h2 style="font-size:15px;margin:0 0 8px">Dettaglio giornate</h2>
@@ -473,7 +450,6 @@ $("dayForm").addEventListener("submit",saveDay);
 $("clearForm").addEventListener("click",clearForm);
 $("deleteDay").addEventListener("click",deleteDay);
 $("holidayEnabled").addEventListener("change",toggleHolidayFields);
-$("scooterEnabled").addEventListener("change",updatePreview);
 ["startTime","endTime","breakHours","holidayHours"].forEach(id=>{
 $(id).addEventListener("input",updatePreview);
 $(id).addEventListener("change",updatePreview);
